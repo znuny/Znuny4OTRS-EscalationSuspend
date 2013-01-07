@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<otrs_config version="1.0" init="Config">
+    <ConfigItem Name="Ticket::CustomModule###Znuny4OTRS-EscalationSuspend" Required="1" Valid="1">
+        <Description Translatable="1">Overloads (redefines) existing functions in Kernel::System::Ticket. Used to easily add customizations.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Core::Ticket</SubGroup>
+        <Setting>
+            <String Regex="">Kernel::System::Ticket::Znuny4OTRSEscalationSuspend</String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="EscalationSuspendStates" Required="0" Valid="1">
+        <Description Translatable="1">List of states for which escalations should be suspended.</Description>
+        <Group>Znuny4OTRS-EscalationSuspend</Group>
+        <SubGroup>EscalationSuspend</SubGroup>
+        <Setting>
+            <Array>
+                <Item>pending auto close+</Item>
+                <Item>pending auto close-</Item>
+                <Item>pending reminder</Item>
+            </Array>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SuspendEscalatedTickets" Required="1" Valid="1">
+        <Description Translatable="1">Suspend already escalated tickets.</Description>
+        <Group>Znuny4OTRS-EscalationSuspend</Group>
+        <SubGroup>EscalationSuspend</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0">No</Item>
+                <Item Key="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+</otrs_config>

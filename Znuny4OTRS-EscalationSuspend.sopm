@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_package version="1.0">
+    <Name>Znuny4OTRS-EscalationSuspend</Name>
+    <Version>1.8.1</Version>
+    <Framework>3.1.x</Framework>
+    <Vendor>Znuny GmbH</Vendor>
+    <URL>http://znuny.com/</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description Lang="en">A module to enable escalation suspension.</Description>
+    <Description Lang="de">Ein Modul zum Ermöglichen des Anhaltens von Eskalation.</Description>
+    <Filelist>
+        <File Permission="755" Location="bin/otrs.RebuildEscalationIndexOnline.pl"/>
+        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSEscalationSuspend.xml"/>
+        <File Permission="644" Location="Kernel/Language/de_Znuny4OTRSEscalationSuspend.pm"/>
+        <File Permission="644" Location="Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm"/>
+        <File Permission="644" Location="var/cron/rebuild_ticket_escalation_index"/>
+    </Filelist>
+    <IntroInstall Type="post" Title="Installation Information" Lang="en"><![CDATA[
+        <br/>
+        Welcome to <u>Znuny4OTRS-EscalationSuspend</u>!
+        <br/>
+        <br/>
+        This package functionality suspends the escalation when the ticket is in any of the states defined in EscalationSuspendStates via SysConfig (per default suspend escalation for 'pending auto close+', 'pending auto close-' and 'pending reminder').
+        <br/>
+        <br/>
+        <b>Notice</b>
+        <br/>
+        <br/>
+        <p>You need to restart cron to make this feature working!</p>
+        <br/>
+        <br/>
+        <p>
+        Your Znuny Team!
+        <br/>
+        <a href="http://znuny.com/" target="_blank">http://znuny.com</a>
+        </p>
+        <br/>
+        <br/>
+    ]]></IntroInstall>
+</otrs_package>
