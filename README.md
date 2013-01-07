@@ -18,7 +18,7 @@ You need to restart cron to make this feature working!
 
 Download
 ========
-For download see https://github.com/znuny/Znuny4OTRS-EscalationSuspend/downloads/
+For download see http://znuny.com/d/
 
 Commercial Support
 ==================
