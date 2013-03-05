@@ -3,6 +3,7 @@
     <Name>Znuny4OTRS-EscalationSuspend</Name>
     <Version>1.8.1</Version>
     <Framework>3.1.x</Framework>
+    <Framework>3.2.x</Framework>
     <Vendor>Znuny GmbH</Vendor>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
@@ -20,7 +21,7 @@
         Welcome to <u>Znuny4OTRS-EscalationSuspend</u>!
         <br/>
         <br/>
-        This package functionality suspends the escalation when the ticket is in any of the states defined in EscalationSuspendStates via SysConfig (per default suspend escalation for 'pending auto close+', 'pending auto close-' and 'pending reminder').
+        This package suspends the escalation when the ticket is in any of the states defined in EscalationSuspendStates via SysConfig (per default suspend escalation for 'pending auto close+', 'pending auto close-' and 'pending reminder').
         <br/>
         <br/>
         <b>Notice</b>

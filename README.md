@@ -3,7 +3,7 @@ Znuny4OTRS - EscalationSuspend
 
 Feature List
 ============
-This package functionality suspends the escalation when the ticket is in any of the states defined in EscalationSuspendStates via SysConfig (per default suspend escalation for 'pending auto close+', 'pending auto close-' and 'pending reminder').
+This package suspends the escalation when the ticket is in any of the states defined in EscalationSuspendStates via SysConfig (per default suspend escalation for 'pending auto close+', 'pending auto close-' and 'pending reminder').
 
 Installation
 ============
@@ -11,10 +11,11 @@ Download the package and install it via admin interface -> package manager.
 
 Prerequisites
 * OTRS 3.1
+* OTRS 3.2
 
 Notice
 ======
-You need to restart cron to make this feature working!
+You need to restart cron after installing this feature!
 
 Download
 ========
