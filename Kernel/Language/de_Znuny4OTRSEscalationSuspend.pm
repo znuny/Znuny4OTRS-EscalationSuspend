@@ -1,5 +1,5 @@
 # --
-# Kernel/Language/de_OTRSEscalationSuspend.pm - provides xx Kernel/Modules/*.pm module language translation
+# Kernel/Language/de_Znuny4OTRSEscalationSuspend.pm - provides xx Kernel/Modules/*.pm module language translation
 # Copyright (C) 2003-2012 OTRS AG, http://otrs.com/
 # Copyright (C) 2013 Znuny GmbH, http://znuny.com/
 # --
@@ -8,13 +8,10 @@
 # did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 # --
 
-package Kernel::Language::de_OTRSEscalationSuspend;
+package Kernel::Language::de_Znuny4OTRSEscalationSuspend;
 
 use strict;
 use warnings;
-
-use vars qw($VERSION);
-$VERSION = qw($Revision: 1.6 $) [1];
 
 sub Data {
     my $Self = shift;
