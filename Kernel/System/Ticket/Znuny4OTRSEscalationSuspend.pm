@@ -72,7 +72,9 @@ use vars qw(@ISA $VERSION);
 
             # clear ticket cache
             delete $Self->{ 'Cache::GetTicket' . $Param{TicketID} };
-
+            if ($Self->can('_TicketCacheClear') {
+                $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
+            }
             return 1;
         }
 
@@ -292,7 +294,9 @@ use vars qw(@ISA $VERSION);
 
         # clear ticket cache
         delete $Self->{ 'Cache::GetTicket' . $Param{TicketID} };
-
+        if ($Self->can('_TicketCacheClear') {
+            $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
+        }
         return 1;
     }
 
