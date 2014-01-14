@@ -1,19 +1,12 @@
 # --
 # Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm - custom ticket changes
-# Copyright (C) 2003-2011 OTRS AG, http://otrs.com/
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com/
-# --
-# This software comes with ABSOLUTELY NO WARRANTY. For details, see
-# the enclosed file COPYING for license information (AGPL). If you
-# did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
 # --
 
 package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
 use strict;
 use warnings;
-
-use vars qw(@ISA $VERSION);
 
 # disable redefine warnings in this scope
 {
@@ -39,10 +32,14 @@ use vars qw(@ISA $VERSION);
         # get states in which to suspend escalations
         my @SuspendStates      = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
         my $SuspendStateActive = 0;
+
+        STATE:
         for my $State (@SuspendStates) {
+
             if ( $Ticket{State} eq $State ) {
+
                 $SuspendStateActive = 1;
-                last;
+                last STATE;
             }
         }
 
@@ -148,6 +145,7 @@ use vars qw(@ISA $VERSION);
                 Bind => [ \$Param{TicketID} ],
             );
             while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+
                 push @SenderHistory, {
                     SenderTypeID  => $Row[0],
                     ArticleTypeID => $Row[1],
@@ -490,4 +488,3 @@ use vars qw(@ISA $VERSION);
 }
 
 1;
-

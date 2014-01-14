@@ -1,11 +1,6 @@
 # --
 # Kernel/Language/de_Znuny4OTRSEscalationSuspend.pm - provides xx Kernel/Modules/*.pm module language translation
-# Copyright (C) 2003-2012 OTRS AG, http://otrs.com/
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com/
-# --
-# This software comes with ABSOLUTELY NO WARRANTY. For details, see
-# the enclosed file COPYING for license information (AGPL). If you
-# did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
 # --
 
 package Kernel::Language::de_Znuny4OTRSEscalationSuspend;
