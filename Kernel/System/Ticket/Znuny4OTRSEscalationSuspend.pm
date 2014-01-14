@@ -32,14 +32,10 @@ use warnings;
         # get states in which to suspend escalations
         my @SuspendStates      = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
         my $SuspendStateActive = 0;
-
-        STATE:
         for my $State (@SuspendStates) {
-
             if ( $Ticket{State} eq $State ) {
-
                 $SuspendStateActive = 1;
-                last STATE;
+                last;
             }
         }
 
@@ -145,7 +141,6 @@ use warnings;
                 Bind => [ \$Param{TicketID} ],
             );
             while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
-
                 push @SenderHistory, {
                     SenderTypeID  => $Row[0],
                     ArticleTypeID => $Row[1],
@@ -488,3 +483,4 @@ use warnings;
 }
 
 1;
+
