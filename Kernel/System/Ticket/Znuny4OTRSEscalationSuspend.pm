@@ -479,6 +479,182 @@ use warnings;
         return $DestinationTime;
     }
 
+    sub Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate {
+        my ( $Self, %Param ) = @_;
+
+        # get states in which to suspend escalations
+        my @SuspendStates = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
+
+        # get stateid->state map
+        my %StateList = $Self->{StateObject}->StateList(
+            UserID => 1,
+        );
+
+        # check for suspend times
+        my @StateHistory;
+        $Self->{DBObject}->Prepare(
+            SQL => 'SELECT th.state_id, th.create_time FROM '
+                . 'ticket_history th, ticket_history_type tht '
+                . 'WHERE th.history_type_id = tht.id '
+                . 'AND tht.name IN (' . "'NewTicket', 'StateUpdate'" . ') '
+                . 'AND th.ticket_id = ? '
+                . 'ORDER BY th.create_time ASC',
+            Bind => [ \$Param{TicketID} ],
+        );
+        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+            push @StateHistory, {
+                StateID     => $Row[0],
+                Created     => $Row[1],
+                CreatedUnix => $Self->{TimeObject}->TimeStamp2SystemTime(
+                    String => $Row[1],
+                ),
+                State => $StateList{ $Row[0] },
+            };
+        }
+
+        # start time in unix format
+        my $DestinationTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+            String => $Param{StartTime},
+        );
+
+        # loop through state changes
+        my $SuspendState           = 0;
+        my $WorkingTimeUnsuspended = 0;
+        ROW:
+        for my $Row (@StateHistory) {
+
+            if ( $Row->{CreatedUnix} <= $DestinationTime ) {
+
+                # old state change, remember if suspend state
+                $SuspendState = 0;
+                for my $State (@SuspendStates) {
+                    if ( $Row->{State} eq $State ) {
+                        $SuspendState = 1;
+                    }
+                }
+                next ROW;
+            }
+
+            if ( !$SuspendState ) {
+
+                # calculate working time if no suspend state
+                my $WorkingTime = $Self->{TimeObject}->WorkingTime(
+                    StartTime => $DestinationTime,
+                    StopTime  => $Row->{CreatedUnix},
+                    Calendar  => $Param{Calendar},
+                );
+
+                $WorkingTimeUnsuspended += $WorkingTime;
+            }
+
+            # move destination time forward if suspend state
+            $DestinationTime = $Row->{CreatedUnix};
+
+            # remember if suspend state
+            $SuspendState = 0;
+            for my $State (@SuspendStates) {
+                if ( $Row->{State} eq $State ) {
+                    $SuspendState = 1;
+                }
+            }
+        }
+
+        return $WorkingTimeUnsuspended;
+    }
+
+
+    sub Kernel::System::Ticket::_TicketGetClosed {
+        my ( $Self, %Param ) = @_;
+
+        # check needed stuff
+        for my $Needed (qw(TicketID Ticket)) {
+            if ( !defined $Param{$Needed} ) {
+                $Self->{LogObject}->Log( Priority => 'error', Message => "Need $Needed!" );
+                return;
+            }
+        }
+
+        # get close state types
+        my @List = $Self->{StateObject}->StateGetStatesByType(
+            StateType => ['closed'],
+            Result    => 'ID',
+        );
+        return if !@List;
+
+        # Get id for history types
+        my @HistoryTypeIDs;
+        for my $HistoryType (qw(StateUpdate NewTicket)) {
+            push @HistoryTypeIDs, $Self->HistoryTypeLookup( Type => $HistoryType );
+        }
+
+        return if !$Self->{DBObject}->Prepare(
+            SQL => "
+                SELECT MAX(create_time)
+                FROM ticket_history
+                WHERE ticket_id = ?
+                   AND state_id IN (${\(join ', ', sort @List)})
+                   AND history_type_id IN  (${\(join ', ', sort @HistoryTypeIDs)})
+                ",
+            Bind => [ \$Param{TicketID} ],
+        );
+
+        my %Data;
+        ROW:
+        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+            last ROW if !defined $Row[0];
+            $Data{Closed} = $Row[0];
+
+            # cleanup time stamps (some databases are using e. g. 2008-02-25 22:03:00.000000
+            # and 0000-00-00 00:00:00 time stamps)
+            $Data{Closed} =~ s/^(\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d)\..+?$/$1/;
+        }
+
+        return if !$Data{Closed};
+
+        # for compat. wording reasons
+        $Data{SolutionTime} = $Data{Closed};
+
+        # get escalation properties
+        my %Escalation = $Self->TicketEscalationPreferences(
+            Ticket => $Param{Ticket},
+            UserID => $Param{UserID} || 1,
+        );
+
+        if ( $Escalation{SolutionTime} ) {
+
+            # get unix time stamps
+            my $CreateTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+                String => $Param{Ticket}->{Created},
+            );
+            my $SolutionTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+                String => $Data{Closed},
+            );
+
+            # get time between creation and solution
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#             my $WorkingTime = $Self->{TimeObject}->WorkingTime(
+#                 StartTime => $CreateTime,
+#                 StopTime  => $SolutionTime,
+#                 Calendar  => $Escalation{Calendar},
+#             );
+            my $WorkingTime = $Self->TicketWorkingTimeSuspendCalculate(
+                TicketID  => $Param{Ticket}->{TicketID},
+                StartTime => $Param{Ticket}->{Created},
+                Calendar  => $Escalation{Calendar},
+            );
+# ---
+
+            $Data{SolutionInMin} = int( $WorkingTime / 60 );
+
+            my $EscalationSolutionTime = $Escalation{SolutionTime} * 60;
+            $Data{SolutionDiffInMin} = int( ( $EscalationSolutionTime - $WorkingTime ) / 60 );
+        }
+
+        return %Data;
+    }
+
     # reset all warnings
 }
 
