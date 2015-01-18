@@ -15,7 +15,11 @@ use vars qw($Self);
 
 use Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+# get needed objects
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
 my $EventObject = $Kernel::OM->Get('Kernel::System::Ticket::Znuny4OTRSEscalationSuspend');
 
 # Subs:
@@ -28,20 +32,18 @@ my $EventObject = $Kernel::OM->Get('Kernel::System::Ticket::Znuny4OTRSEscalation
 # Kernel::System::Ticket::TicketEscalationIndexBuild
 ##############################################################
 
-my $TicketEscalationIndexBuild = $EventObject->Kernel::System::Ticket::TicketEscalationIndexBuild(
-    TicketID => '81315',
-    UserID => '1',
-);
-#
-#$Self->True(
-#    $TicketEscalationIndexBuild,
-#    'Kernel::System::Ticket::Znuny4OTRSEscalationSuspend()',
+
+#my $TicketEscalationIndexBuild = $EventObject->Kernel::System::Ticket::TicketEscalationIndexBuild(
+#    TicketID => '81315',
+#    UserID => '1',
 #);
 
-#$Self->False(
+
+#$Self->True(
 #    $TicketEscalationIndexBuild,
-#    'Kernel::System::Ticket::Znuny4OTRSEscalationSuspend()',
+#    'Kernel::System::Ticket::TicketEscalationIndexBuild()',
 #);
+
 
 
 
@@ -51,11 +53,16 @@ my $TicketEscalationIndexBuild = $EventObject->Kernel::System::Ticket::TicketEsc
 
 #set EscalationSuspendStates
 
-my $TicketEscalationSuspendCalculat = $EventObject->Kernel::System::Ticket::TicketEscalationSuspendCalculat(
-#    TicketID => '81315',
-#    UserID => '1',
+my $TicketEscalationSuspendCalculat = $EventObject->TicketEscalationSuspendCalculate(
+	ResponseTime	=> '60',
+#	Suspended 		=> '',
+	StartTime		=> '2015-01-18 22:00:00',
 );
 
+$Self->True(
+    $TicketEscalationSuspendCalculat,
+    'Kernel::System::Ticket::TicketEscalationSuspendCalculat()',
+);
 
 
 ##############################################################
@@ -64,8 +71,7 @@ my $TicketEscalationSuspendCalculat = $EventObject->Kernel::System::Ticket::Tick
 
 #set EscalationSuspendStates
 my $TicketWorkingTimeSuspendCalculate = $EventObject->Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate(
-#    TicketID => '81315',
-#    UserID => '1',
+
 );
 ##############################################################
 # Kernel::System::Ticket::_TicketGetClosed
@@ -76,3 +82,5 @@ my $_TicketGetClosed = $EventObject->Kernel::System::Ticket::_TicketGetClosed(
     TicketID => '81315',
     Ticket => '1',
 );
+
+

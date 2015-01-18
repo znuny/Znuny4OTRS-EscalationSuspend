@@ -9,29 +9,46 @@ use strict;
 use warnings;
 
 ##### my
-use Kernel::System::Ticket;
+#use Kernel::System::Ticket;
+#use Kernel::System::Ticket::Article;
+use Kernel::System::State;
 our @ObjectDependencies = (
 	'Kernel::System::Ticket',
 );
 
 sub new {
+
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object
-    my $Self = {};
-    bless( $Self, $Type );
-	$Self->{TimeObject} = Kernel::System::Ticket->new(%Param);	
+    my $Self = {%Param};
+    bless ($Self, $Type);
+	
+	$Self->{TicketObject} = Kernel::System::Time->new(%Param);
+	# check needed objects
+    for (qw(TicketObject)) {
+        if ( !$Self->{$_} ) {
+            $Self->{$_} = $Param{$_} || die "Got no $_!";
+        }
+    }  
+	
+	$Self->{TicketObject} = Kernel::System::Ticket->new(%Param);
+	$Self->{ConfigObject} = Kernel::Config->new(%Param);
+	$Self->{DBObject} = Kernel::System::DB->new(%Param);
+	$Self->{StateObject} = Kernel::System::State->new(%Param);
+	$Self->{TimeObject} = Kernel::System::Time->new(%Param);	
     return $Self;
 }
 #####
 
 
+
 # disable redefine warnings in this scope
-{
+sub run {
     no warnings 'redefine';
 
     # redefine TicketEscalationIndexBuild() of Kernel::System::Ticket
-    sub Kernel::System::Ticket::TicketEscalationIndexBuild {
+    sub TicketEscalationIndexBuild {
         my ( $Self, %Param ) = @_;
 
         # check needed stuff
@@ -42,7 +59,7 @@ sub new {
             }
         }
 
-        my %Ticket = $Self->TicketGet(
+        my %Ticket = $Self->{TicketObject}->TicketGet(
             TicketID => $Param{TicketID},
             UserID   => $Param{UserID},
         );
@@ -90,7 +107,7 @@ sub new {
         }
 
         # get escalation properties
-        my %Escalation = $Self->TicketEscalationPreferences(
+        my %Escalation = $Self->{TicketObject}->TicketEscalationPreferences(
             Ticket => \%Ticket,
             UserID => $Param{UserID},
         );
@@ -108,7 +125,7 @@ sub new {
         else {
 
             # check if first response is already done
-            my %FirstResponseDone = $Self->_TicketGetFirstResponse(
+            my %FirstResponseDone = $Self->{TicketObject}->_TicketGetFirstResponse(
                 TicketID => $Ticket{TicketID},
                 Ticket   => \%Ticket,
             );
@@ -170,12 +187,12 @@ sub new {
             for my $Row (@SenderHistory) {
 
                 # get sender type
-                $Row->{SenderType} = $Self->ArticleSenderTypeLookup(
+                $Row->{SenderType} = $Self->{TicketObject}->ArticleSenderTypeLookup(
                     SenderTypeID => $Row->{SenderTypeID},
                 );
 
                 # get article type
-                $Row->{ArticleType} = $Self->ArticleTypeLookup(
+                $Row->{ArticleType} = $Self->{TicketObject}->ArticleTypeLookup(
                     ArticleTypeID => $Row->{ArticleTypeID},
                 );
             }
@@ -222,7 +239,7 @@ sub new {
             }
 
             if ($LastSenderTime) {
-                my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
+                my $DestinationTime = TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $LastSenderTime,
                     ResponseTime => $Escalation{UpdateTime},
@@ -274,7 +291,7 @@ sub new {
                 );
             }
             else {
-                my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
+                my $DestinationTime = TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
                     ResponseTime => $Escalation{SolutionTime},
@@ -311,7 +328,7 @@ sub new {
         return 1;
     }
 
-    sub Kernel::System::Ticket::TicketEscalationSuspendCalculate {
+    sub TicketEscalationSuspendCalculate {
         my ( $Self, %Param ) = @_;
 
         # get states in which to suspend escalations
@@ -581,7 +598,7 @@ sub new {
     }
 
 
-    sub Kernel::System::Ticket::_TicketGetClosed {
+    sub _TicketGetClosed {
         my ( $Self, %Param ) = @_;
 
         # check needed stuff
