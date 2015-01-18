@@ -8,6 +8,24 @@ package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 use strict;
 use warnings;
 
+##### my
+use Kernel::System::Ticket;
+our @ObjectDependencies = (
+	'Kernel::System::Ticket',
+);
+
+sub new {
+    my ( $Type, %Param ) = @_;
+
+    # allocate new hash for object
+    my $Self = {};
+    bless( $Self, $Type );
+	$Self->{TimeObject} = Kernel::System::Ticket->new(%Param);	
+    return $Self;
+}
+#####
+
+
 # disable redefine warnings in this scope
 {
     no warnings 'redefine';
