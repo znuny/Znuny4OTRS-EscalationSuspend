@@ -514,7 +514,7 @@ sub run {
         return $DestinationTime;
     }
 
-    sub Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate {
+    sub TicketWorkingTimeSuspendCalculate {
         my ( $Self, %Param ) = @_;
 
         # get states in which to suspend escalations
@@ -619,7 +619,7 @@ sub run {
         # Get id for history types
         my @HistoryTypeIDs;
         for my $HistoryType (qw(StateUpdate NewTicket)) {
-            push @HistoryTypeIDs, $Self->HistoryTypeLookup( Type => $HistoryType );
+            push @HistoryTypeIDs, $Self->{TicketObject}->HistoryTypeLookup( Type => $HistoryType );
         }
 
         return if !$Self->{DBObject}->Prepare(
@@ -650,7 +650,7 @@ sub run {
         $Data{SolutionTime} = $Data{Closed};
 
         # get escalation properties
-        my %Escalation = $Self->TicketEscalationPreferences(
+        my %Escalation = $Self->{TicketObject}->TicketEscalationPreferences(
             Ticket => $Param{Ticket},
             UserID => $Param{UserID} || 1,
         );
@@ -674,7 +674,7 @@ sub run {
 #                 StopTime  => $SolutionTime,
 #                 Calendar  => $Escalation{Calendar},
 #             );
-            my $WorkingTime = $Self->TicketWorkingTimeSuspendCalculate(
+            my $WorkingTime = TicketWorkingTimeSuspendCalculate(
                 TicketID  => $Param{Ticket}->{TicketID},
                 StartTime => $Param{Ticket}->{Created},
                 Calendar  => $Escalation{Calendar},

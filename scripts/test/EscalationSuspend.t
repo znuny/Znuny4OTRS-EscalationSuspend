@@ -51,8 +51,6 @@ my $EventObject = $Kernel::OM->Get('Kernel::System::Ticket::Znuny4OTRSEscalation
 # Kernel::System::Ticket::TicketEscalationSuspendCalculate
 ##############################################################
 
-#set EscalationSuspendStates
-
 my $TicketEscalationSuspendCalculat = $EventObject->TicketEscalationSuspendCalculate(
 	ResponseTime	=> '60',
 #	Suspended 		=> '',
@@ -69,18 +67,31 @@ $Self->True(
 # Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate
 ##############################################################
 
-#set EscalationSuspendStates
-my $TicketWorkingTimeSuspendCalculate = $EventObject->Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate(
-
+my $TicketWorkingTimeSuspendCalculate = $EventObject->TicketWorkingTimeSuspendCalculate(
+	StartTime		=> '2015-01-18 22:00:00',
 );
+
+$Self->Is(
+	$TicketWorkingTimeSuspendCalculate,
+	'0', #2015-01-18 22:00:00',    
+    'Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate()',
+);
+
 ##############################################################
 # Kernel::System::Ticket::_TicketGetClosed
 ##############################################################
 
 
-my $_TicketGetClosed = $EventObject->Kernel::System::Ticket::_TicketGetClosed(
+my $TicketGetClosed = $EventObject->_TicketGetClosed(
     TicketID => '81315',
-    Ticket => '1',
+    Ticket => 'Test Name',
+    UserID => '1',
+);
+
+$Self->Is(
+    $TicketGetClosed,
+    '',
+    'Kernel::System::Ticket::_TicketGetClosed()',
 );
 
 
