@@ -31,6 +31,7 @@ sub new {
 	$Self->{DBObject} = Kernel::System::DB->new(%Param);
 	$Self->{StateObject} = Kernel::System::State->new(%Param);
 	$Self->{TimeObject} = Kernel::System::Time->new(%Param);
+	$Self->{LogObject} = Kernel::System::Log->new(%Param);
 		
     return $Self;
 }
@@ -100,7 +101,7 @@ sub new {
             }
             return 1;
             
-        }else{return 0;}          
+        }    
 
         # get escalation properties
         my %Escalation = $Self->{TicketObject}->TicketEscalationPreferences(
