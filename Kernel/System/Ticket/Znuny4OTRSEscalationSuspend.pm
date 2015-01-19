@@ -9,13 +9,15 @@ use strict;
 use warnings;
 
 ##### my
-#use Kernel::System::Ticket;
-#use Kernel::System::Ticket::Article;
-use Kernel::System::State;
-our @ObjectDependencies = (
-	'Kernel::System::Ticket',
-);
 
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::DB',
+    'Kernel::System::Log',
+    'Kernel::System::State',
+    'Kernel::System::Time',
+    'Kernel::System::Ticket',
+);
 sub new {
 
     my ( $Type, %Param ) = @_;
@@ -24,19 +26,12 @@ sub new {
     my $Self = {%Param};
     bless ($Self, $Type);
 	
-	$Self->{TicketObject} = Kernel::System::Time->new(%Param);
-	# check needed objects
-    for (qw(TicketObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{$_} = $Param{$_} || die "Got no $_!";
-        }
-    }  
-	
 	$Self->{TicketObject} = Kernel::System::Ticket->new(%Param);
 	$Self->{ConfigObject} = Kernel::Config->new(%Param);
 	$Self->{DBObject} = Kernel::System::DB->new(%Param);
 	$Self->{StateObject} = Kernel::System::State->new(%Param);
-	$Self->{TimeObject} = Kernel::System::Time->new(%Param);	
+	$Self->{TimeObject} = Kernel::System::Time->new(%Param);
+		
     return $Self;
 }
 #####
@@ -44,7 +39,7 @@ sub new {
 
 
 # disable redefine warnings in this scope
-sub run {
+{
     no warnings 'redefine';
 
     # redefine TicketEscalationIndexBuild() of Kernel::System::Ticket
@@ -104,7 +99,8 @@ sub run {
                 $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
             }
             return 1;
-        }
+            
+        }else{return 0;}          
 
         # get escalation properties
         my %Escalation = $Self->{TicketObject}->TicketEscalationPreferences(
