@@ -521,8 +521,19 @@ sub new {
 
     sub TicketWorkingTimeSuspendCalculate {
         my ( $Self, %Param ) = @_;
-
-        # get states in which to suspend escalations
+        
+        # check needed stuff
+	    for my $Needs (qw(TicketID StartTime Calendar)) {
+	        if ( !$Param{$Needs} ) {
+	            $Kernel::OM->Get('Kernel::System::Log')->Log(
+	                Priority => 'error',
+	                Message  => "Need $Needs!",
+	            );
+	            return;
+	        }
+	    }
+     
+  		# get states in which to suspend escalations
         my @SuspendStates = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
 
         # get stateid->state map
@@ -648,8 +659,8 @@ sub new {
             # and 0000-00-00 00:00:00 time stamps)
             $Data{Closed} =~ s/^(\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d)\..+?$/$1/;
         }
-
-        return if !$Data{Closed};
+		
+		return if !$Data{Closed};
 
         # for compat. wording reasons
         $Data{SolutionTime} = $Data{Closed};
@@ -679,7 +690,8 @@ sub new {
 #                 StopTime  => $SolutionTime,
 #                 Calendar  => $Escalation{Calendar},
 #             );
-            my $WorkingTime = TicketWorkingTimeSuspendCalculate(
+#BRESCH	HIER
+            my $WorkingTime = $Self->TicketWorkingTimeSuspendCalculate(
                 TicketID  => $Param{Ticket}->{TicketID},
                 StartTime => $Param{Ticket}->{Created},
                 Calendar  => $Escalation{Calendar},

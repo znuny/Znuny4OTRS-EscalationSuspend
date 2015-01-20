@@ -46,6 +46,7 @@ my $TicketEscalationIndexBuild;
 my $TicketEscalationSuspendCalculat;
 my $TicketWorkingTimeSuspendCalculate;
 my %TicketGetClosed;
+my $TicketGetClosed;
 my $SuspendStateActive;
 
 ##############################################################
@@ -383,7 +384,8 @@ $Self->True(
 ##############################################################
 # Kernel::System::Ticket::TicketEscalationSuspendCalculate
 ##############################################################
-#
+# 
+
 
 %Ticket = $TicketObject->TicketGet(
     TicketID => $TicketID,
@@ -402,7 +404,7 @@ $SuspendStateActive = 1;
 $TicketEscalationSuspendCalculat = $EscalationSuspendObject->TicketEscalationSuspendCalculate(
 	StartTime		=> $Ticket{Created},
 	TicketID 		=> $TicketID,
-    ResponseTime 	=> $Escalation{SolutionTime},
+    ResponseTime 	=> $Escalation{UpdateTime},
     Calendar     	=> $Escalation{Calendar},     # 
     Suspended    	=> $SuspendStateActive,       # should be 1
 );
@@ -422,35 +424,21 @@ $Self->IsNot(
 
 
 
-
-return 1;
-
-
-# delete created ticket
-$Success = $TicketObject->TicketDelete(
-       TicketID => $TicketID,
-       UserID   => 1,
-   );
-
-
-
 ###############################################################
 ## Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate
 ###############################################################
-#return $WorkingTimeUnsuspended
+#return $WorkingTimeUnsuspended ... (without pending status)
 $TicketWorkingTimeSuspendCalculate = $EscalationSuspendObject->TicketWorkingTimeSuspendCalculate(
-	StartTime		=> $Ticket{Created},
+	StartTime => $Ticket{Created},
+	TicketID  => $TicketID,
+   	Calendar  => $Escalation{Calendar},
 );
 
-$Self->Is(
+$Self->IsNot(
 	$TicketWorkingTimeSuspendCalculate,
-	'0', #2015-01-18 22:00:00',    
-    'TicketWorkingTimeSuspendCalculate()   - first run without changes',
+	 '',
+    'TicketWorkingTimeSuspendCalculate()   - WorkingTime:',
 );
-
-
-
-
 
 
 ##############################################################
@@ -458,27 +446,38 @@ $Self->Is(
 ##############################################################
 
 
-%TicketGetClosed = $EscalationSuspendObject->_TicketGetClosed(
-    TicketID => $Ticket{TicketID},
-    Ticket => \%Ticket,
-    UserID => '1',
-);
 
-$Self->IsNot(
-    $TicketGetClosed{SolutionInMin},
-    undef,
-    '_TicketGetClosed()   - first run without changes',
-);
-
-
-return 1;
-# delete created ticket
-$Success = $TicketObject->TicketDelete(
+# close ticket to check the _TicketGetClosed funtkion
+	$Success = $TicketObject->TicketStateSet(
+       State    => 'closed successful',
        TicketID => $TicketID,
        UserID   => 1,
    );
 
 
+
+%TicketGetClosed = $EscalationSuspendObject->_TicketGetClosed(
+    Ticket   => \%Ticket,
+    TicketID => $Ticket{TicketID},    
+    UserID   => 1,
+);
+
+
+$Self->IsNot(
+    $TicketGetClosed{SolutionDiffInMin},
+    '',
+    '_TicketGetClosed()   - SolutionDiffInMin: ',
+);
+
+
+
+return 1;
+
+# delete created ticket
+$Success = $TicketObject->TicketDelete(
+       TicketID => $TicketID,
+       UserID   => 1,
+   );
 
 1;
 
