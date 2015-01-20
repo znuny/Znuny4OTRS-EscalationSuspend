@@ -35,12 +35,55 @@ my $EscalationSuspendObject = $Kernel::OM->Get('Kernel::System::Ticket::Znuny4OT
 # Kernel::System::Ticket::_TicketGetClosed
 
 
+# Var
+my $mySolutionTime = 120;
+my $myQueueName = "MyTestQueue";
+my $myTicketName = "MyTestTicket";
+my $QueueID;
+
+
+
+##############################################################
+# create a queue for testing
+##############################################################
+
+# check if Queue $myTicketName exists
+my %QueueGet = $QueueObject->QueueGet( 
+		Name => $myQueueName, 
+	); 	
+
+# QueueID of  $myQueueName is...	
+$QueueID = $QueueGet{QueueID};	
+	
+# if Queue exsists	   
+if ($QueueID){	
+	
+	$Self->Is(
+	    $QueueGet{Name},
+	    $myQueueName,
+	    "QueueGet() - Queuename",
+	);
+	$Self->Is(
+	    $QueueID,
+	    $QueueID,
+	    "QueueGet() - QueueID of  $myQueueName - ",
+	); 
+	
+	# check the SolutionTime 
+	$Self->Is(
+	    $QueueGet{SolutionTime},
+	    '120',
+	    'QueueGet() - SolutionTime - ',
+	); 
+}
+else
+{
 # create a Queue named "MyTestQueue" with a SolutionTime of 120 min
-my $QueueID  = $QueueObject->QueueAdd(
-       Name                => 'MyTestQueue',
+$QueueID  = $QueueObject->QueueAdd(
+       Name                => $myQueueName,
        ValidID             => 1,
        GroupID             => 1,
-       FirstResponseTime   => 120,         # (optional)
+       FirstResponseTime   => $mySolutionTime,         # (optional)
        FirstResponseNotify => 80,          # (optional, notify agent if first response escalation is 60% reached)
        UpdateTime          => 120,         # (optional)
        UpdateNotify        => 80,          # (optional, notify agent if update escalation is 80% reached)
@@ -54,67 +97,55 @@ my $QueueID  = $QueueObject->QueueAdd(
        SignatureID         => 1,
        Comment             => 'Some comment',
        UserID              => 1,
+   );   
+  
+	$Self->True(
+	    $QueueID,
+	    "QueueAdd() -  create Queue ($QueueID) $myQueueName with a SolutionTime of $mySolutionTime min",
+	);
+}
+
+
+##############################################################
+# create a ticket for testing
+##############################################################
+
+my $myTicketNr ="201501101000001";
+my $TicketID = $TicketObject->TicketCheckNumber(
+       Tn => $myTicketNr,
    );
    
+if (!$TicketID)  { 
 
-# if not exists   
-#$Self->True(
-#    $QueueID,
-#    'QueueAdd()',
-#);
-
-
-# if exists
-$Self->False(
-    $QueueID,
-    'QueueAdd() -  create Queue "MyTestQueue" with a SolutionTime of 120min',
-);
-
-# check the name of queue  
-my %QueueGet = $QueueObject->QueueGet( 
-		Name => "MyTestQueue", 
-	);  
+	# create a ticket "$myTicketName" in queue "$myQueueName"   
+	$TicketID = $TicketObject->TicketCreate(
+	    TN            => $myTicketNr, # $TicketObject->TicketCreateNumber(), # optional
+		Title         => $myTicketName,
+		Queue         => $myQueueName,              # or QueueID => 123,
+		Lock          => 'unlock',
+		Priority      => '3 normal',         # or PriorityID => 2,
+		State         => 'new',              # or StateID => 5,
+		CustomerID    => 'Znuny',
+		CustomerUser  => 'customer@example.com',
+		OwnerID       => 1,
+		ResponsibleID => 1,                # not required
+		ArchiveFlag   => 'n',                # (y|n) not required
+		UserID        => 1,
+	);	
 	
-$Self->True(
-    $QueueGet{Name} eq "MyTestQueue",
-    'QueueGet() - (get QueueName) - Queue "MyTestQueue"',
-);
-
-# check the SolutionTime 
-$Self->Is(
-    $QueueGet{SolutionTime},
-    '120',
-    'QueueGet() - (get SolutionTime) - ',
-);  
-   
-# create a ticket "MyTestTicket" in queue "MyTestQueue"   
-my $TicketID = $TicketObject->TicketCreate(
-    TN            => $TicketObject->TicketCreateNumber(), # optional
-	Title         => 'MyTestTicket',
-	Queue         => 'MyTestQueue',              # or QueueID => 123,
-	Lock          => 'unlock',
-	Priority      => '3 normal',         # or PriorityID => 2,
-	State         => 'new',              # or StateID => 5,
-	CustomerID    => 'Znuny',
-	CustomerUser  => 'customer@example.com',
-	OwnerID       => 1,
-	ResponsibleID => 1,                # not required
-	ArchiveFlag   => 'n',                # (y|n) not required
-	UserID        => 1,
-);
+	$Self->True(
+	    $TicketID,
+	    "TicketCreate() - create test-ticket" ,
+	);
+}
 
 # check TicketID
-$Self->Is(
-    $TicketID,
-    $TicketID,
-    'TicketID: ',
-);
-
-$Self->True(
-    $TicketID,
-    'TicketCreate() - (create) "MyTestTicket"',
-);
-
+	$Self->Is(
+	    $TicketID,
+	    $TicketID,
+	    'TicketID: ',
+	);
+	
 # get Ticket-Values
 my %Ticket = $TicketObject->TicketGet(
     TicketID => $TicketID,
@@ -123,17 +154,9 @@ my %Ticket = $TicketObject->TicketGet(
 
 $Self->Is(
     $Ticket{Title},
-    'MyTestTicket',
-    'TicketGet() - (Title) ',
+    $myTicketName,
+    'Ticketname: ',
 );
-
-
-#$Self->Is(
-#    $Ticket{SolutionTime},
-#    $Ticket{Created},
-#    'Ticket created as closed as Solution Time = Creation Time',
-#);
-
 
 
 
@@ -150,7 +173,7 @@ my $Success = $TicketObject->TicketStateSet(
    );
 
 # get Ticket-Values
-my %Ticket = $TicketObject->TicketGet(
+%Ticket = $TicketObject->TicketGet(
     TicketID => $TicketID,
     Extended => 1,
 );
@@ -173,14 +196,14 @@ $Self->True(
 ##########################################
 
 ## State = open
-my $Success = $TicketObject->TicketStateSet(
+$Success = $TicketObject->TicketStateSet(
        State    => 'open',
        TicketID => $TicketID,
        UserID   => 1,
    );
 
 # get Ticket-Values
-my %Ticket = $TicketObject->TicketGet(
+%Ticket = $TicketObject->TicketGet(
     TicketID => $TicketID,
     Extended => 1,
 );
@@ -190,7 +213,6 @@ $TicketEscalationIndexBuild = $EscalationSuspendObject->TicketEscalationIndexBui
 	TicketID => $TicketID,
 	UserID   => 1,
 );
-
 
 $Self->True(
     $TicketEscalationIndexBuild,
@@ -210,13 +232,13 @@ $Self->Is(
     'TicketEscalationPreferences() - seconds total till escalation, 120 - ',
 );
 
-
 #########################
 # $SuspendStateActive = 1
 #########################
 
-#set pending time to 120 min
-my $SystemPendingTime  =  $Ticket{CreateTimeUnix} + (120 * 60);
+#set pending time to 30 min
+my $Pending = 30; #min
+my $SystemPendingTime  =  $Ticket{CreateTimeUnix} + ($Pending * 60);
 my $PendingTime = $TimeObject->SystemTime2TimeStamp(
        SystemTime => $SystemPendingTime,
    );
@@ -235,16 +257,16 @@ $Self->Is(
 $Self->IsNot(
 	$PendingTime,
     $Ticket{Created},    
-    'TicketPendingTimeSet -  should be plus 120 min. of createdTime',
+    "TicketPendingTimeSet -  should be plus $Pending min. of createdTime",
 );
 #set pending reminder
-my $Success = $TicketObject->TicketStateSet(
+ $Success = $TicketObject->TicketStateSet(
        State    => 'pending reminder',
        TicketID => $TicketID,
        UserID   => 1,
    );
 # get Ticket-Values
-my %Ticket = $TicketObject->TicketGet(
+%Ticket = $TicketObject->TicketGet(
     TicketID => $TicketID,
     Extended => 1,
 );   
@@ -254,7 +276,6 @@ $Self->Is(
     '$Ticket{Created}',
 );  
 #########################
-
 
 
 
@@ -299,6 +320,8 @@ $Self->Is(
 
 
 
+
+
 ##############################################################
 # Kernel::System::Ticket::_TicketGetClosed
 ##############################################################
@@ -323,6 +346,8 @@ $Self->IsNot(
 #       TicketID => $TicketID,
 #       UserID   => 1,
 #   );
+
+return 1;
 
 1;
 
