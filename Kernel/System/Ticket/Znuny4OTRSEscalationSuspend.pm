@@ -8,8 +8,9 @@ package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 use strict;
 use warnings;
 
-##### my
+##### my code #####
 
+# needed for unit test
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::DB',
@@ -35,7 +36,7 @@ sub new {
 		
     return $Self;
 }
-#####
+##### my code end #####
 
 
 
@@ -119,7 +120,8 @@ sub new {
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
-        else {
+        else 
+        {
 
             # check if first response is already done
             my %FirstResponseDone = $Self->{TicketObject}->_TicketGetFirstResponse(
@@ -136,7 +138,8 @@ sub new {
             }
 
             # update first response time to expected escalation destination time
-            else {
+            else 
+            {
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -163,7 +166,8 @@ sub new {
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
-        else {
+        else 
+        {
 
             # check if update escalation should be set
             my @SenderHistory;
@@ -257,7 +261,8 @@ sub new {
             }
 
             # else, no not escalate, because latest sender was agent
-            else {
+            else 
+            {
                 $Self->{DBObject}->Do(
                     SQL  => 'UPDATE ticket SET escalation_update_time = 0 WHERE id = ?',
                     Bind => [ \$Ticket{TicketID}, ]
@@ -272,7 +277,8 @@ sub new {
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
-        else {
+        else 
+        {
 
             # find solution time / first close time
             my %SolutionDone = $Self->_TicketGetClosed(
@@ -287,7 +293,8 @@ sub new {
                     Bind => [ \$Ticket{TicketID}, ]
                 );
             }
-            else {
+            else 
+            {
                 my $DestinationTime = TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -393,7 +400,8 @@ sub new {
                 # move destination time forward if suspend state
                 $DestinationTime = $Row->{CreatedUnix};
             }
-            else {
+            else 
+            {
 
                 # calculate working time if no suspend state
                 my $WorkingTime = $Self->{TimeObject}->WorkingTime(
