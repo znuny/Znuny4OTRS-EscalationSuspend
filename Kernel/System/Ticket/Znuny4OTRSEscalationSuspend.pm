@@ -54,8 +54,8 @@ sub new {
                 $Self->{LogObject}->Log( Priority => 'error', Message => "Need $Needed!" );
                 return;
             }
-        }
-
+        }    
+                
         my %Ticket = $Self->{TicketObject}->TicketGet(
             TicketID => $Param{TicketID},
             UserID   => $Param{UserID},
@@ -690,7 +690,7 @@ sub new {
 #                 StopTime  => $SolutionTime,
 #                 Calendar  => $Escalation{Calendar},
 #             );
-#BRESCH	HIER
+
             my $WorkingTime = $Self->TicketWorkingTimeSuspendCalculate(
                 TicketID  => $Param{Ticket}->{TicketID},
                 StartTime => $Param{Ticket}->{Created},

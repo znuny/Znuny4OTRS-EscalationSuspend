@@ -273,9 +273,6 @@ $Self->Is(
 );
 
 
-
-
-
 #Ein Ticket wird erstellt. Die Lösungszeit beträgt 2 Stunden. Die zu erwartende Eskalation wird für 10:00 angezeigt.
 #########################
 # $SuspendStateActive = 1
@@ -385,7 +382,7 @@ $Self->True(
 # Kernel::System::Ticket::TicketEscalationSuspendCalculate
 ##############################################################
 # 
-
+sleep(10);
 
 %Ticket = $TicketObject->TicketGet(
     TicketID => $TicketID,
@@ -445,7 +442,8 @@ $Self->IsNot(
 # Kernel::System::Ticket::_TicketGetClosed
 ##############################################################
 
-
+# put outside the brackets if you want to close this ticket
+return 1;
 
 # close ticket to check the _TicketGetClosed funtkion
 	$Success = $TicketObject->TicketStateSet(
@@ -469,8 +467,14 @@ $Self->IsNot(
     '_TicketGetClosed()   - SolutionDiffInMin: ',
 );
 
+$Self->IsNot(
+    $TicketGetClosed{SolutionInMin},
+    '',
+    '_TicketGetClosed()   - SolutionInMin: ',
+);
 
 
+# put outside the brackets if you want to delete this ticket
 return 1;
 
 # delete created ticket
