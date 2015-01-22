@@ -444,22 +444,22 @@ use warnings;
                     Suspended    => $SuspendStateActive,
                 );
 # ---
-
-				# update solution time to $DestinationTime
-				$DBObject->Do(
-					SQL =>
-						'UPDATE ticket SET escalation_solution_time = ?, change_time = current_timestamp, '
-						. ' change_by = ? WHERE id = ?',
-					Bind => [ \$DestinationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
-				);
 # ---
 # Znuny4OTRS-EscalationSuspend
-# ---				
+# ---		
+#		# update solution time to $DestinationTime
+#		$DBObject->Do(
+#			SQL =>
+#				'UPDATE ticket SET escalation_solution_time = ?, change_time = current_timestamp, '
+#				. ' change_by = ? WHERE id = ?',
+#			Bind => [ \$DestinationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
+#		);
+		
                 # update solution time to $DestinationTime
-#               $DBObject->Do(
-#                   SQL => 'UPDATE ticket SET escalation_solution_time = ? WHERE id = ?',
-#                   Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
-#                );
+                $DBObject->Do(
+                	SQL => 'UPDATE ticket SET escalation_solution_time = ? WHERE id = ?',
+        		Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
+                );
 # ---
                 # remember escalation time
                 if ( $EscalationTime == 0 || $DestinationTime < $EscalationTime ) {
