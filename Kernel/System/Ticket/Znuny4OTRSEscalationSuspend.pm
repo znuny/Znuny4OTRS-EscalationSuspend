@@ -8,44 +8,12 @@ package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 use strict;
 use warnings;
 
-##### my code #####
-
-# needed for unit test
-our @ObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::DB',
-    'Kernel::System::Log',
-    'Kernel::System::State',
-    'Kernel::System::Time',
-    'Kernel::System::Ticket',
-);
-sub new {
-
-    my ( $Type, %Param ) = @_;
-
-    # allocate new hash for object
-    my $Self = {%Param};
-    bless ($Self, $Type);
-	
-	$Self->{TicketObject} = Kernel::System::Ticket->new(%Param);
-	$Self->{ConfigObject} = Kernel::Config->new(%Param);
-	$Self->{DBObject} = Kernel::System::DB->new(%Param);
-	$Self->{StateObject} = Kernel::System::State->new(%Param);
-	$Self->{TimeObject} = Kernel::System::Time->new(%Param);
-	$Self->{LogObject} = Kernel::System::Log->new(%Param);
-		
-    return $Self;
-}
-##### my code end #####
-
-
-
 # disable redefine warnings in this scope
 {
     no warnings 'redefine';
 
     # redefine TicketEscalationIndexBuild() of Kernel::System::Ticket
-    sub TicketEscalationIndexBuild {
+    sub Kernel::System::Ticket::TicketEscalationIndexBuild {
         my ( $Self, %Param ) = @_;
 
         # check needed stuff
@@ -54,9 +22,9 @@ sub new {
                 $Self->{LogObject}->Log( Priority => 'error', Message => "Need $Needed!" );
                 return;
             }
-        }    
-                
-        my %Ticket = $Self->{TicketObject}->TicketGet(
+        }
+
+        my %Ticket = $Self->TicketGet(
             TicketID => $Param{TicketID},
             UserID   => $Param{UserID},
         );
@@ -101,11 +69,10 @@ sub new {
                 $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
             }
             return 1;
-            
-        }    
+        }
 
         # get escalation properties
-        my %Escalation = $Self->{TicketObject}->TicketEscalationPreferences(
+        my %Escalation = $Self->TicketEscalationPreferences(
             Ticket => \%Ticket,
             UserID => $Param{UserID},
         );
@@ -120,11 +87,10 @@ sub new {
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
-        else 
-        {
+        else {
 
             # check if first response is already done
-            my %FirstResponseDone = $Self->{TicketObject}->_TicketGetFirstResponse(
+            my %FirstResponseDone = $Self->_TicketGetFirstResponse(
                 TicketID => $Ticket{TicketID},
                 Ticket   => \%Ticket,
             );
@@ -138,8 +104,7 @@ sub new {
             }
 
             # update first response time to expected escalation destination time
-            else 
-            {
+            else {
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -166,8 +131,7 @@ sub new {
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
-        else 
-        {
+        else {
 
             # check if update escalation should be set
             my @SenderHistory;
@@ -188,12 +152,12 @@ sub new {
             for my $Row (@SenderHistory) {
 
                 # get sender type
-                $Row->{SenderType} = $Self->{TicketObject}->ArticleSenderTypeLookup(
+                $Row->{SenderType} = $Self->ArticleSenderTypeLookup(
                     SenderTypeID => $Row->{SenderTypeID},
                 );
 
                 # get article type
-                $Row->{ArticleType} = $Self->{TicketObject}->ArticleTypeLookup(
+                $Row->{ArticleType} = $Self->ArticleTypeLookup(
                     ArticleTypeID => $Row->{ArticleTypeID},
                 );
             }
@@ -240,7 +204,7 @@ sub new {
             }
 
             if ($LastSenderTime) {
-                my $DestinationTime = TicketEscalationSuspendCalculate(
+                my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $LastSenderTime,
                     ResponseTime => $Escalation{UpdateTime},
@@ -261,8 +225,7 @@ sub new {
             }
 
             # else, no not escalate, because latest sender was agent
-            else 
-            {
+            else {
                 $Self->{DBObject}->Do(
                     SQL  => 'UPDATE ticket SET escalation_update_time = 0 WHERE id = ?',
                     Bind => [ \$Ticket{TicketID}, ]
@@ -277,8 +240,7 @@ sub new {
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
-        else 
-        {
+        else {
 
             # find solution time / first close time
             my %SolutionDone = $Self->_TicketGetClosed(
@@ -293,9 +255,8 @@ sub new {
                     Bind => [ \$Ticket{TicketID}, ]
                 );
             }
-            else 
-            {
-                my $DestinationTime = TicketEscalationSuspendCalculate(
+            else {
+                my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
                     ResponseTime => $Escalation{SolutionTime},
@@ -332,7 +293,7 @@ sub new {
         return 1;
     }
 
-    sub TicketEscalationSuspendCalculate {
+    sub Kernel::System::Ticket::TicketEscalationSuspendCalculate {
         my ( $Self, %Param ) = @_;
 
         # get states in which to suspend escalations
@@ -400,8 +361,7 @@ sub new {
                 # move destination time forward if suspend state
                 $DestinationTime = $Row->{CreatedUnix};
             }
-            else 
-            {
+            else {
 
                 # calculate working time if no suspend state
                 my $WorkingTime = $Self->{TimeObject}->WorkingTime(
@@ -519,21 +479,10 @@ sub new {
         return $DestinationTime;
     }
 
-    sub TicketWorkingTimeSuspendCalculate {
+    sub Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate {
         my ( $Self, %Param ) = @_;
-        
-        # check needed stuff
-	    for my $Needs (qw(TicketID StartTime Calendar)) {
-	        if ( !$Param{$Needs} ) {
-	            $Kernel::OM->Get('Kernel::System::Log')->Log(
-	                Priority => 'error',
-	                Message  => "Need $Needs!",
-	            );
-	            return;
-	        }
-	    }
-     
-  		# get states in which to suspend escalations
+
+        # get states in which to suspend escalations
         my @SuspendStates = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
 
         # get stateid->state map
@@ -614,7 +563,7 @@ sub new {
     }
 
 
-    sub _TicketGetClosed {
+    sub Kernel::System::Ticket::_TicketGetClosed {
         my ( $Self, %Param ) = @_;
 
         # check needed stuff
@@ -635,7 +584,7 @@ sub new {
         # Get id for history types
         my @HistoryTypeIDs;
         for my $HistoryType (qw(StateUpdate NewTicket)) {
-            push @HistoryTypeIDs, $Self->{TicketObject}->HistoryTypeLookup( Type => $HistoryType );
+            push @HistoryTypeIDs, $Self->HistoryTypeLookup( Type => $HistoryType );
         }
 
         return if !$Self->{DBObject}->Prepare(
@@ -659,14 +608,14 @@ sub new {
             # and 0000-00-00 00:00:00 time stamps)
             $Data{Closed} =~ s/^(\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d)\..+?$/$1/;
         }
-		
-		return if !$Data{Closed};
+
+        return if !$Data{Closed};
 
         # for compat. wording reasons
         $Data{SolutionTime} = $Data{Closed};
 
         # get escalation properties
-        my %Escalation = $Self->{TicketObject}->TicketEscalationPreferences(
+        my %Escalation = $Self->TicketEscalationPreferences(
             Ticket => $Param{Ticket},
             UserID => $Param{UserID} || 1,
         );
@@ -690,7 +639,6 @@ sub new {
 #                 StopTime  => $SolutionTime,
 #                 Calendar  => $Escalation{Calendar},
 #             );
-
             my $WorkingTime = $Self->TicketWorkingTimeSuspendCalculate(
                 TicketID  => $Param{Ticket}->{TicketID},
                 StartTime => $Param{Ticket}->{Created},
@@ -711,4 +659,5 @@ sub new {
 }
 
 1;
+
 
