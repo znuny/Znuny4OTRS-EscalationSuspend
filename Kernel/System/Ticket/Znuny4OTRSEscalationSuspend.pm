@@ -2,7 +2,6 @@
 # Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm - custom ticket changes
 # Copyright (C) 2014 Znuny GmbH, http://znuny.com/
 # --
-
 package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
 use strict;
@@ -19,18 +18,30 @@ use warnings;
         # check needed stuff
         for my $Needed (qw(TicketID UserID)) {
             if ( !defined $Param{$Needed} ) {
-                $Self->{LogObject}->Log( Priority => 'error', Message => "Need $Needed!" );
+                $Kernel::OM->Get('Kernel::System::Log')->Log( Priority => 'error', Message => "Need $Needed!" );
                 return;
             }
         }
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#       my %Ticket = $Self->TicketGet(
+#			TicketID      => $Param{TicketID},
+#			UserID        => $Param{UserID},
+#			DynamicFields => 0,
+#		);
+#        
+# ---
         my %Ticket = $Self->TicketGet(
-            TicketID => $Param{TicketID},
-            UserID   => $Param{UserID},
-        );
-
+			TicketID      => $Param{TicketID},
+			UserID        => $Param{UserID},			
+		);        
+      
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
         # get states in which to suspend escalations
-        my @SuspendStates      = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
+        my @SuspendStates      = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
         my $SuspendStateActive = 0;
         for my $State (@SuspendStates) {
             if ( $Ticket{State} eq $State ) {
@@ -38,6 +49,10 @@ use warnings;
                 last;
             }
         }
+# ---
+        
+  	 	# get database object
+  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # do no escalations on (merge|close|remove) tickets
         if ( $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
@@ -49,20 +64,42 @@ use warnings;
                 EscalationUpdateTime   => 'escalation_update_time',
                 EscalationSolutionTime => 'escalation_solution_time',
             );
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---			
+#			for my $Key ( sort keys %EscalationTimes ) {
+#
+#				# check if table update is needed
+#				next if !$Ticket{$Key};
+#
+#				# update ticket table
+#				$DBObject->Do(
+#					SQL =>
+#						"UPDATE ticket SET $EscalationTimes{$Key} = 0, change_time = current_timestamp, "
+#						. " change_by = ? WHERE id = ?",
+#					Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+#				);
+#			}
+# ---	
+			
             KEY:
             for my $Key ( keys %EscalationTimes ) {
 
                 # check if table update is needed
                 next KEY if !$Ticket{$Key};
-
+			
                 # update ticket table
-                $Self->{DBObject}->Do(
+                $DBObject->Do(
                     SQL  => "UPDATE ticket SET $EscalationTimes{$Key} = 0 WHERE id = ?",
                     Bind => [ \$Ticket{TicketID}, ]
                 );
             }
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---			
+#			# clear ticket cache
+#       	$Self->_TicketCacheClear( TicketID => $Param{TicketID} );
+# ---		
             # clear ticket cache
             delete $Self->{ 'Cache::GetTicket' . $Param{TicketID} };
             if ($Self->can('_TicketCacheClear')) {
@@ -79,10 +116,22 @@ use warnings;
 
         # find escalation times
         my $EscalationTime = 0;
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---			
+#		# update first response (if not responded till now)
+#			if ( !$Escalation{FirstResponseTime} ) {
+#				$DBObject->Do(
+#					SQL =>
+#						'UPDATE ticket SET escalation_response_time = 0, change_time = current_timestamp, '
+#						. ' change_by = ? WHERE id = ?',
+#					Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#				);
+#			}
+# ---			
         # update first response (if not responded till now)
         if ( !$Escalation{FirstResponseTime} ) {
-            $Self->{DBObject}->Do(
+           $DBObject->Do(
                 SQL  => 'UPDATE ticket SET escalation_response_time = 0 WHERE id = ?',
                 Bind => [ \$Ticket{TicketID}, ]
             );
@@ -94,17 +143,41 @@ use warnings;
                 TicketID => $Ticket{TicketID},
                 Ticket   => \%Ticket,
             );
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---				
+#			if (%FirstResponseDone) {
+#				$DBObject->Do(
+#					SQL =>
+#						'UPDATE ticket SET escalation_response_time = 0, change_time = current_timestamp, '
+#						. ' change_by = ? WHERE id = ?',
+#					Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#				);
+#			}
+# ---			
             # update first response time to 0
             if (%FirstResponseDone) {
-                $Self->{DBObject}->Do(
+                $DBObject->Do(
                     SQL  => 'UPDATE ticket SET escalation_response_time = 0 WHERE id = ?',
                     Bind => [ \$Ticket{TicketID}, ]
                 );
             }
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---			
+#			# update first response time to expected escalation destination time
+#			else {
+#				my $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->DestinationTime(
+#					StartTime => $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
+#						String => $Ticket{Created}
+#					),
+#					Time     => $Escalation{FirstResponseTime} * 60,
+#					Calendar => $Escalation{Calendar},
+#				);
+				
             # update first response time to expected escalation destination time
             else {
+			
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -112,9 +185,9 @@ use warnings;
                     Calendar     => $Escalation{Calendar},
                     Suspended    => $SuspendStateActive,
                 );
-
+# ---
                 # update first response time to $DestinationTime
-                $Self->{DBObject}->Do(
+                $DBObject->Do(
                     SQL => 'UPDATE ticket SET escalation_response_time = ? WHERE id = ?',
                     Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
                 );
@@ -123,24 +196,36 @@ use warnings;
                 $EscalationTime = $DestinationTime;
             }
         }
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---		
+#		# update update && do not escalate in "pending auto" for escalation update time
+#		if ( !$Escalation{UpdateTime} || $Ticket{StateType} =~ /^(pending)/i ) {
+#			$DBObject->Do(
+#				SQL => 'UPDATE ticket SET escalation_update_time = 0, change_time = current_timestamp, '
+#					. ' change_by = ? WHERE id = ?',
+#				Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#			);
+#		}		
 
         # update update && do not escalate in "pending auto" for escalation update time
         if ( !$Escalation{UpdateTime} || $Ticket{StateType} =~ /^(pending)/i ) {
-            $Self->{DBObject}->Do(
+            $DBObject->Do(
                 SQL  => 'UPDATE ticket SET escalation_update_time = 0 WHERE id = ?',
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
+# ---			
         else {
 
             # check if update escalation should be set
             my @SenderHistory;
-            return if !$Self->{DBObject}->Prepare(
+            return if !$DBObject->Prepare(
                 SQL => 'SELECT article_sender_type_id, article_type_id, create_time FROM '
                     . 'article WHERE ticket_id = ? ORDER BY create_time ASC',
                 Bind => [ \$Param{TicketID} ],
             );
-            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+            while ( my @Row = $DBObject->FetchrowArray() ) {
                 push @SenderHistory, {
                     SenderTypeID  => $Row[0],
                     ArticleTypeID => $Row[1],
@@ -166,6 +251,45 @@ use warnings;
             my $LastSenderTime;
             my $LastSenderType = '';
 
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---			
+#		for my $Row ( reverse @SenderHistory ) {
+#
+#           # fill up latest sender time (as initial value)
+#           if ( !$LastSenderTime ) {
+#               $LastSenderTime = $Row->{Created};
+#           }
+#
+#           # do not use locked tickets for calculation
+#            #last if $Ticket{Lock} eq 'lock';
+#
+#           # do not use /int/ article types for calculation
+#           next if $Row->{ArticleType} =~ /int/i;
+#
+#           # only use 'agent' and 'customer' sender types for calculation
+#           next if $Row->{SenderType} !~ /^(agent|customer)$/;
+#
+#           # last if latest was customer and the next was not customer
+#           # otherwise use also next, older customer article as latest
+#           # customer followup for starting escalation
+#           if ( $Row->{SenderType} eq 'agent' && $LastSenderType eq 'customer' ) {
+#               last;
+#           }
+#
+#           # start escalation on latest customer article
+#           if ( $Row->{SenderType} eq 'customer' ) {
+#               $LastSenderType = 'customer';
+#               $LastSenderTime = $Row->{Created};
+#           }
+#
+#           # start escalation on latest agent article
+#           if ( $Row->{SenderType} eq 'agent' ) {
+#               $LastSenderTime = $Row->{Created};
+#               last;
+#           }
+#       }
+			
             ROWSENDERHISTORY:
             for my $Row ( reverse @SenderHistory ) {
 
@@ -187,7 +311,7 @@ use warnings;
                 # otherwise use also next, older customer article as latest
                 # customer followup for starting escalation
                 if ( $Row->{SenderType} eq 'agent' && $LastSenderType eq 'customer' ) {
-                    last;
+                    last ROWSENDERHISTORY;
                 }
 
                 # start escalation on latest customer article
@@ -199,21 +323,36 @@ use warnings;
                 # start escalation on latest agent article
                 if ( $Row->{SenderType} eq 'agent' ) {
                     $LastSenderTime = $Row->{Created};
-                    last;
+                    last ROWSENDERHISTORY;
                 }
             }
-
-            if ($LastSenderTime) {
-                my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
-                    TicketID     => $Ticket{TicketID},
-                    StartTime    => $LastSenderTime,
-                    ResponseTime => $Escalation{UpdateTime},
-                    Calendar     => $Escalation{Calendar},
-                    Suspended    => $SuspendStateActive,
-                );
-
+# ---
+			if ($LastSenderTime) {
+			
+			# get time object
+            my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+			
+            my $DestinationTime = $TimeObject->DestinationTime(
+                StartTime => $TimeObject->TimeStamp2SystemTime(
+                    String => $LastSenderTime,
+                ),
+                Time     => $Escalation{UpdateTime} * 60,
+                Calendar => $Escalation{Calendar},
+            );
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---	
+#           if ($LastSenderTime) {
+#               my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
+#                   TicketID     => $Ticket{TicketID},
+#                   StartTime    => $LastSenderTime,
+#                   ResponseTime => $Escalation{UpdateTime},
+#                   Calendar     => $Escalation{Calendar},
+#                   Suspended    => $SuspendStateActive,
+#               );
+# ---
                 # update update time to $DestinationTime
-                $Self->{DBObject}->Do(
+                $DBObject->Do(
                     SQL => 'UPDATE ticket SET escalation_update_time = ? WHERE id = ?',
                     Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
                 );
@@ -223,23 +362,48 @@ use warnings;
                     $EscalationTime = $DestinationTime;
                 }
             }
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---				
+#			# else, no not escalate, because latest sender was agent
+#			else {
+#				$DBObject->Do(
+#					SQL =>
+#						'UPDATE ticket SET escalation_update_time = 0, change_time = current_timestamp, '
+#						. ' change_by = ? WHERE id = ?',
+#					Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#				);
+#			}
             # else, no not escalate, because latest sender was agent
             else {
-                $Self->{DBObject}->Do(
+				$DBObject->Do(
                     SQL  => 'UPDATE ticket SET escalation_update_time = 0 WHERE id = ?',
                     Bind => [ \$Ticket{TicketID}, ]
                 );
             }
         }
+# ---
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---	
+#		# update solution
+#		if ( !$Escalation{SolutionTime} ) {
+#			$DBObject->Do(
+#				SQL =>
+#					'UPDATE ticket SET escalation_solution_time = 0, change_time = current_timestamp, '
+#					. ' change_by = ? WHERE id = ?',
+#				Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+#			);
+#		}
 
         # update solution
         if ( !$Escalation{SolutionTime} ) {
-            $Self->{DBObject}->Do(
+            $DBObject->Do(
                 SQL  => 'UPDATE ticket SET escalation_solution_time = 0 WHERE id = ?',
                 Bind => [ \$Ticket{TicketID}, ]
             );
         }
+# ---	
         else {
 
             # find solution time / first close time
@@ -247,15 +411,39 @@ use warnings;
                 TicketID => $Ticket{TicketID},
                 Ticket   => \%Ticket,
             );
-
+			
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---				
+#			if (%SolutionDone) {
+#				$DBObject->Do(
+#					SQL =>
+#						'UPDATE ticket SET escalation_solution_time = 0, change_time = current_timestamp, '
+#						. ' change_by = ? WHERE id = ?',
+#					Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+#				);
+#			}
+		
             # update solution time to 0
             if (%SolutionDone) {
-                $Self->{DBObject}->Do(
+				$DBObject->Do(
                     SQL  => 'UPDATE ticket SET escalation_solution_time = 0 WHERE id = ?',
                     Bind => [ \$Ticket{TicketID}, ]
                 );
             }
+# ---
             else {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---				
+#				my $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->DestinationTime(
+#					StartTime => $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
+#						String => $Ticket{Created}
+#					),
+#					Time     => $Escalation{SolutionTime} * 60,
+#					Calendar => $Escalation{Calendar},
+#				);
+				
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -263,50 +451,83 @@ use warnings;
                     Calendar     => $Escalation{Calendar},
                     Suspended    => $SuspendStateActive,
                 );
+# ---
 
+				# update solution time to $DestinationTime
+				$DBObject->Do(
+					SQL =>
+						'UPDATE ticket SET escalation_solution_time = ?, change_time = current_timestamp, '
+						. ' change_by = ? WHERE id = ?',
+					Bind => [ \$DestinationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
+				);
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---				
                 # update solution time to $DestinationTime
-                $Self->{DBObject}->Do(
-                    SQL => 'UPDATE ticket SET escalation_solution_time = ? WHERE id = ?',
-                    Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
-                );
-
+#               $DBObject->Do(
+#                   SQL => 'UPDATE ticket SET escalation_solution_time = ? WHERE id = ?',
+#                   Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
+#                );
+# ---
                 # remember escalation time
                 if ( $EscalationTime == 0 || $DestinationTime < $EscalationTime ) {
                     $EscalationTime = $DestinationTime;
                 }
             }
         }
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---		
+#		# update escalation time (< escalation time)
+#		if ( defined $EscalationTime ) {
+#			$DBObject->Do(
+#				SQL => 'UPDATE ticket SET escalation_time = ?, change_time = current_timestamp, '
+#					. ' change_by = ? WHERE id = ?',
+#				Bind => [ \$EscalationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
+#			);
+#		}
 
         # update escalation time (< escalation time)
         if ( defined $EscalationTime ) {
-            $Self->{DBObject}->Do(
+            $DBObject->Do(
                 SQL => 'UPDATE ticket SET escalation_time = ? WHERE id = ?',
                 Bind => [ \$EscalationTime, \$Ticket{TicketID}, ]
             );
         }
-
-        # clear ticket cache
+# ---
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---	
+#		# clear ticket cache
+#		$Self->_TicketCacheClear( TicketID => $Param{TicketID} );
+ 
+		# clear ticket cache
         delete $Self->{ 'Cache::GetTicket' . $Param{TicketID} };
         if ($Self->can('_TicketCacheClear')) {
             $Self->_TicketCacheClear( TicketID => $Param{TicketID} );
         }
+# ---
         return 1;
     }
-
-    sub Kernel::System::Ticket::TicketEscalationSuspendCalculate {
+	
+	sub Kernel::System::Ticket::TicketEscalationSuspendCalculate {
         my ( $Self, %Param ) = @_;
-
+		
+			
         # get states in which to suspend escalations
-        my @SuspendStates = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
+        my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
 
         # get stateid->state map
-        my %StateList = $Self->{StateObject}->StateList(
+        my %StateList = $Kernel::OM->Get('Kernel::System::State')->StateList(
             UserID => 1,
         );
-
+		
+		# get database object
+		my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+		
         # check for suspend times
         my @StateHistory;
-        $Self->{DBObject}->Prepare(
+        $DBObject->Prepare(
             SQL => 'SELECT th.state_id, th.create_time FROM '
                 . 'ticket_history th, ticket_history_type tht '
                 . 'WHERE th.history_type_id = tht.id '
@@ -315,11 +536,11 @@ use warnings;
                 . 'ORDER BY th.create_time ASC',
             Bind => [ \$Param{TicketID} ],
         );
-        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             push @StateHistory, {
                 StateID     => $Row[0],
                 Created     => $Row[1],
-                CreatedUnix => $Self->{TimeObject}->TimeStamp2SystemTime(
+                CreatedUnix => $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
                     String => $Row[1],
                 ),
                 State => $StateList{ $Row[0] },
@@ -335,7 +556,7 @@ use warnings;
         }
 
         # start time in unix format
-        my $DestinationTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+        my $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
             String => $Param{StartTime},
         );
 
@@ -364,7 +585,7 @@ use warnings;
             else {
 
                 # calculate working time if no suspend state
-                my $WorkingTime = $Self->{TimeObject}->WorkingTime(
+                my $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
                     StartTime => $DestinationTime,
                     StopTime  => $Row->{CreatedUnix},
                     Calendar  => $Param{Calendar},
@@ -379,7 +600,7 @@ use warnings;
 
                     # target time reached, calculate exact time
                     while ($UpdateDiffTime) {
-                        $WorkingTime = $Self->{TimeObject}->WorkingTime(
+                        $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
                             StartTime => $DestinationTime,
                             StopTime  => $DestinationTime + $UpdateDiffTime,
                             Calendar  => $Param{Calendar},
@@ -406,11 +627,11 @@ use warnings;
             if ($SuspendState) {
 
                 # use current timestamp if we are suspended
-                $StartTime = $Self->{TimeObject}->SystemTime();
+                $StartTime = $Kernel::OM->Get('Kernel::System::Time')->SystemTime();
             }
 
             # some time left? calculate remainder as usual
-            $DestinationTime = $Self->{TimeObject}->DestinationTime(
+            $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->DestinationTime(
                 StartTime => $StartTime,
                 Time      => $UpdateDiffTime,
                 Calendar  => $Param{Calendar},
@@ -420,10 +641,10 @@ use warnings;
         # If there is no "UpdateDiffTime" left, the ticket is escalated.
         # calculate exact escalation time and also suspend escalation for escalated tickets!
         # This is a special customer wish and can be activated via config. By default this option is inactive.
-        elsif ( !$UpdateDiffTime && $Self->{ConfigObject}->Get( 'SuspendEscalatedTickets' ) ) {
+        elsif ( !$UpdateDiffTime && $Kernel::OM->Get('Kernel::Config')->Get( 'SuspendEscalatedTickets' ) ) {
 
             # start time in unix format
-            my $InterimDestinationTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+            my $InterimDestinationTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
                 String => $Param{StartTime},
             );
 
@@ -455,7 +676,7 @@ use warnings;
                 else {
 
                     # calculate working time if state is suspend state
-                    my $WorkingTime = $Self->{TimeObject}->WorkingTime(
+                    my $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
                         StartTime => $InterimDestinationTime,
                         StopTime  => $Row->{CreatedUnix},
                         Calendar  => $Param{Calendar},
@@ -468,7 +689,7 @@ use warnings;
             my $StartTime;
             if ($Param{Suspended}) {
                 # use current timestamp, because current state should be suspended
-                $StartTime = $Self->{TimeObject}->SystemTime();
+                $StartTime = $Kernel::OM->Get('Kernel::System::Time')->SystemTime();
             }
             else {
                 # use time of last non-suspend state
@@ -483,16 +704,16 @@ use warnings;
         my ( $Self, %Param ) = @_;
 
         # get states in which to suspend escalations
-        my @SuspendStates = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
+        my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
 
         # get stateid->state map
-        my %StateList = $Self->{StateObject}->StateList(
+        my %StateList = $Kernel::OM->Get('Kernel::System::State')->StateList(
             UserID => 1,
         );
 
         # check for suspend times
         my @StateHistory;
-        $Self->{DBObject}->Prepare(
+        $DBObject->Prepare(
             SQL => 'SELECT th.state_id, th.create_time FROM '
                 . 'ticket_history th, ticket_history_type tht '
                 . 'WHERE th.history_type_id = tht.id '
@@ -501,11 +722,11 @@ use warnings;
                 . 'ORDER BY th.create_time ASC',
             Bind => [ \$Param{TicketID} ],
         );
-        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             push @StateHistory, {
                 StateID     => $Row[0],
                 Created     => $Row[1],
-                CreatedUnix => $Self->{TimeObject}->TimeStamp2SystemTime(
+                CreatedUnix => $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
                     String => $Row[1],
                 ),
                 State => $StateList{ $Row[0] },
@@ -513,7 +734,7 @@ use warnings;
         }
 
         # start time in unix format
-        my $DestinationTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+        my $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
             String => $Param{StartTime},
         );
 
@@ -538,7 +759,7 @@ use warnings;
             if ( !$SuspendState ) {
 
                 # calculate working time if no suspend state
-                my $WorkingTime = $Self->{TimeObject}->WorkingTime(
+                my $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
                     StartTime => $DestinationTime,
                     StopTime  => $Row->{CreatedUnix},
                     Calendar  => $Param{Calendar},
@@ -575,7 +796,7 @@ use warnings;
         }
 
         # get close state types
-        my @List = $Self->{StateObject}->StateGetStatesByType(
+        my @List = $Kernel::OM->Get('Kernel::System::State')->StateGetStatesByType(
             StateType => ['closed'],
             Result    => 'ID',
         );
@@ -587,7 +808,7 @@ use warnings;
             push @HistoryTypeIDs, $Self->HistoryTypeLookup( Type => $HistoryType );
         }
 
-        return if !$Self->{DBObject}->Prepare(
+        return if !$DBObject->Prepare(
             SQL => "
                 SELECT MAX(create_time)
                 FROM ticket_history
@@ -600,7 +821,7 @@ use warnings;
 
         my %Data;
         ROW:
-        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        while ( my @Row = $DBObject->FetchrowArray() ) {
             last ROW if !defined $Row[0];
             $Data{Closed} = $Row[0];
 
@@ -623,10 +844,10 @@ use warnings;
         if ( $Escalation{SolutionTime} ) {
 
             # get unix time stamps
-            my $CreateTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+            my $CreateTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
                 String => $Param{Ticket}->{Created},
             );
-            my $SolutionTime = $Self->{TimeObject}->TimeStamp2SystemTime(
+            my $SolutionTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
                 String => $Data{Closed},
             );
 
@@ -634,7 +855,7 @@ use warnings;
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
-#             my $WorkingTime = $Self->{TimeObject}->WorkingTime(
+#             my $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
 #                 StartTime => $CreateTime,
 #                 StopTime  => $SolutionTime,
 #                 Calendar  => $Escalation{Calendar},
@@ -659,5 +880,3 @@ use warnings;
 }
 
 1;
-
-
