@@ -2,6 +2,7 @@
 # Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm - custom ticket changes
 # Copyright (C) 2014 Znuny GmbH, http://znuny.com/
 # --
+
 package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
 use strict;
@@ -24,9 +25,9 @@ use warnings;
         }
 
         my %Ticket = $Self->TicketGet(
-			TicketID      => $Param{TicketID},
-			UserID        => $Param{UserID},			
-		);        
+		TicketID      => $Param{TicketID},
+		UserID        => $Param{UserID},			
+	);        
       
         # get states in which to suspend escalations
         my @SuspendStates      = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
@@ -38,8 +39,8 @@ use warnings;
             }
         }
 
-  	 	# get database object
-  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+  	 # get database object
+  	 my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # do no escalations on (merge|close|remove) tickets
         if ( $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
@@ -57,7 +58,7 @@ use warnings;
 
                 # check if table update is needed
                 next TIME if !$Ticket{$Key};
-			
+	
                 # update ticket table
                 $DBObject->Do(
                     SQL  => "UPDATE ticket SET $EscalationTimes{$Key} = 0 WHERE id = ?",
@@ -206,7 +207,6 @@ use warnings;
                     last ROW;
                 }
             }
-            
 	
            if ($LastSenderTime) {
                my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
@@ -276,13 +276,11 @@ use warnings;
                 );
 
 
-				# update solution time to $DestinationTime
-				$DBObject->Do(
-					SQL =>
-						'UPDATE ticket SET escalation_solution_time = ?, change_time = current_timestamp, '
-						. ' change_by = ? WHERE id = ?',
-					Bind => [ \$DestinationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
-				);
+		# update solution time to $DestinationTime
+-                $Self->{DBObject}->Do(
+-                    SQL => 'UPDATE ticket SET escalation_solution_time = ? WHERE id = ?',
+-                    Bind => [ \$DestinationTime, \$Ticket{TicketID}, ]
+-                );
 
                 # remember escalation time
                 if ( $EscalationTime == 0 || $DestinationTime < $EscalationTime ) {
@@ -322,9 +320,9 @@ use warnings;
         my %StateList = $Kernel::OM->Get('Kernel::System::State')->StateList(
             UserID => 1,
         );
-		
-		# get database object
-		my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+	
+	# get database object
+	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 		
         # check for suspend times
         my @StateHistory;
@@ -504,8 +502,8 @@ use warnings;
     sub Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate {
         my ( $Self, %Param ) = @_;
 			
-		# get database object
-  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+	# get database object
+  	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
   	 	
         # get states in which to suspend escalations
         my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
@@ -587,12 +585,11 @@ use warnings;
         return $WorkingTimeUnsuspended;
     }
 
-
     sub Kernel::System::Ticket::_TicketGetClosed {
         my ( $Self, %Param ) = @_;
 
-		# get database object
-  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+	# get database object
+  	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 		
         # check needed stuff
         for my $Needed (qw(TicketID Ticket)) {
