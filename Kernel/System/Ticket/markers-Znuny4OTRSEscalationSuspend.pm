@@ -506,6 +506,8 @@ use warnings;
 	sub Kernel::System::Ticket::TicketEscalationSuspendCalculate {
         my ( $Self, %Param ) = @_;
 		
+		# get database object
+  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 			
         # get states in which to suspend escalations
         my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
@@ -696,6 +698,9 @@ use warnings;
     sub Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate {
         my ( $Self, %Param ) = @_;
 
+		# get database object
+  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+		
         # get states in which to suspend escalations
         my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
 
@@ -779,6 +784,9 @@ use warnings;
 
     sub Kernel::System::Ticket::_TicketGetClosed {
         my ( $Self, %Param ) = @_;
+
+		# get database object
+  	 	my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # check needed stuff
         for my $Needed (qw(TicketID Ticket)) {
