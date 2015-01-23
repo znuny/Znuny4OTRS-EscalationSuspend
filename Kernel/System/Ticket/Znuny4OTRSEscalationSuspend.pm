@@ -409,7 +409,7 @@ use warnings;
                 $StartTime = $Self->{TimeObject}->SystemTime();
             }
 
-            # some time left? calculate remainder as usual
+            # some time left? calculate reminder as usual
             $DestinationTime = $Self->{TimeObject}->DestinationTime(
                 StartTime => $StartTime,
                 Time      => $UpdateDiffTime,
