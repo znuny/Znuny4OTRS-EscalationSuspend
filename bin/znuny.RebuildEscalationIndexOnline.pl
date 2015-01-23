@@ -21,6 +21,15 @@ use Kernel::System::Encode;
 use Kernel::System::DB;
 use Kernel::System::Main;
 use Kernel::System::Ticket;
+use Kernel::System::ObjectManager;
+
+
+# create common objects
+local $Kernel::OM = Kernel::System::ObjectManager->new(
+    'Kernel::System::Log' => {
+        LogPrefix => 'OTRS-znuny.RebuildEscalationIndexOnline.pl',
+    },
+);
 
 # get options
 my %Opts = ();
@@ -34,18 +43,18 @@ if ( $Opts{h} ) {
 
 # create common objects
 my %CommonObject = ();
-$CommonObject{ConfigObject} = Kernel::Config->new();
-$CommonObject{LogObject}    = Kernel::System::Log->new(
+$CommonObject{ConfigObject} = $Kernel::OM->Get('Kernel::Config')->new();
+$CommonObject{LogObject}    = $Kernel::OM->Get('Kernel::System::Log')->new(
     LogPrefix => 'OTRS-znuny.RebuildEscalationIndexOnline',
     %CommonObject,
 );
-$CommonObject{MainObject}   = Kernel::System::Main->new(%CommonObject);
-$CommonObject{EncodeObject} = Kernel::System::Encode->new(%CommonObject);
-$CommonObject{TimeObject}   = Kernel::System::Time->new( %CommonObject, );
+$CommonObject{MainObject}   = $Kernel::OM->Get('Kernel::System::Main')->new(%CommonObject);
+$CommonObject{EncodeObject} = $Kernel::OM->Get('Kernel::System::Encode')->new(%CommonObject);
+$CommonObject{TimeObject}   = $Kernel::OM->Get('Kernel::System::Time')->new( %CommonObject, );
 
 # create needed objects
-$CommonObject{DBObject}     = Kernel::System::DB->new(%CommonObject);
-$CommonObject{TicketObject} = Kernel::System::Ticket->new(%CommonObject);
+$CommonObject{DBObject}     = $Kernel::OM->Get('Kernel::System::DB')->new(%CommonObject);
+$CommonObject{TicketObject} = $Kernel::OM->Get('Kernel::System::Ticket')->new(%CommonObject);
 
 # get all tickets
 my @TicketIDs = $CommonObject{TicketObject}->TicketSearch(
