@@ -36,7 +36,7 @@ my %Opts = ();
 getopt( 'h', \%Opts );
 if ( $Opts{h} ) {
     print "znuny.RebuildEscalationIndexOnline.pl - rebuild escalation index\n";
-    print "Copyright (C) 2014 Znuny GmbH, http://znuny.com/\n";
+    print "Copyright (C) 2015 Znuny GmbH, http://znuny.com/\n";
     print "usage: znuny.RebuildEscalationIndexOnline.pl\n";
     exit 1;
 }
@@ -50,7 +50,7 @@ $CommonObject{LogObject}    = $Kernel::OM->Get('Kernel::System::Log')->new(
 );
 $CommonObject{MainObject}   = $Kernel::OM->Get('Kernel::System::Main')->new(%CommonObject);
 $CommonObject{EncodeObject} = $Kernel::OM->Get('Kernel::System::Encode')->new(%CommonObject);
-$CommonObject{TimeObject}   = $Kernel::OM->Get('Kernel::System::Time')->new( %CommonObject, );
+$CommonObject{TimeObject}   = $Kernel::OM->Get('Kernel::System::Time')->new(%CommonObject);
 
 # create needed objects
 $CommonObject{DBObject}     = $Kernel::OM->Get('Kernel::System::DB')->new(%CommonObject);
