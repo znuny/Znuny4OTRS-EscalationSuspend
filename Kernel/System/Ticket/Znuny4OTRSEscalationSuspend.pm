@@ -376,9 +376,6 @@ our $ObjectManagerDisabled = 1;
             UserID => 1,
         );
 
-        # get database object
-        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
         # check for suspend times
         my @StateHistory;
         $DBObject->Prepare(

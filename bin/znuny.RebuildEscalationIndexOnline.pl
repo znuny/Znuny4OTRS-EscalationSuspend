@@ -22,7 +22,7 @@ use Kernel::System::DB;
 use Kernel::System::Main;
 use Kernel::System::Ticket;
 use Kernel::System::ObjectManager;
-
+use Kernel::System::Time;
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
@@ -43,18 +43,17 @@ if ( $Opts{h} ) {
 
 # create common objects
 my %CommonObject = ();
-$CommonObject{ConfigObject} = $Kernel::OM->Get('Kernel::Config')->new();
-$CommonObject{LogObject}    = $Kernel::OM->Get('Kernel::System::Log')->new(
-    LogPrefix => 'OTRS-znuny.RebuildEscalationIndexOnline',
-    %CommonObject,
-);
-$CommonObject{MainObject}   = $Kernel::OM->Get('Kernel::System::Main')->new(%CommonObject);
-$CommonObject{EncodeObject} = $Kernel::OM->Get('Kernel::System::Encode')->new(%CommonObject);
-$CommonObject{TimeObject}   = $Kernel::OM->Get('Kernel::System::Time')->new(%CommonObject);
+$CommonObject{ConfigObject} = $Kernel::OM->Get('Kernel::Config');
+$CommonObject{LogObject}    = $Kernel::OM->Get('Kernel::System::Log');
+
+$CommonObject{MainObject}   = $Kernel::OM->Get('Kernel::System::Main');
+$CommonObject{EncodeObject} = $Kernel::OM->Get('Kernel::System::Encode');
+$CommonObject{TimeObject}   = $Kernel::OM->Get('Kernel::System::Time');
+$CommonObject{TimeObject2}   = Kernel::System::Time->new( %CommonObject,TimeZone => -24*365);
 
 # create needed objects
-$CommonObject{DBObject}     = $Kernel::OM->Get('Kernel::System::DB')->new(%CommonObject);
-$CommonObject{TicketObject} = $Kernel::OM->Get('Kernel::System::Ticket')->new(%CommonObject);
+$CommonObject{DBObject}     = $Kernel::OM->Get('Kernel::System::DB');
+$CommonObject{TicketObject} = $Kernel::OM->Get('Kernel::System::Ticket');
 
 # get all tickets
 my @TicketIDs = $CommonObject{TicketObject}->TicketSearch(
@@ -82,6 +81,3 @@ for my $TicketID (@TicketIDs) {
         print "NOTICE: $Count of $#TicketIDs processed ($Percent% done).\n";
     }
 }
-print "NOTICE: Index creation done.\n";
-
-exit(0);
