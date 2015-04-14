@@ -39,8 +39,14 @@ use warnings;
             }
         }
 
+        # cancel whole escalation
+        my $EscalationSuspendCancelEscalation = $Self->{ConfigObject}->Get('EscalationSuspendCancelEscalation');
+
         # do no escalations on (merge|close|remove) tickets
-        if ( $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
+        if ( $Ticket{StateType} =~ /^(merge|close|remove)/i || ($EscalationSuspendCancelEscalation && $SuspendStateActive) ) {
+
+        # do no escalations on (merge|close|remove) tickets
+        #if ( $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
 
             # update escalation times with 0
             my %EscalationTimes = (
