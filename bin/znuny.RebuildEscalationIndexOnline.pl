@@ -41,27 +41,13 @@ if ( $Opts{h} ) {
     exit 1;
 }
 
-# create common objects
-my %CommonObject = ();
-$CommonObject{ConfigObject} = $Kernel::OM->Get('Kernel::Config');
-$CommonObject{LogObject}    = $Kernel::OM->Get('Kernel::System::Log');
-
-$CommonObject{MainObject}   = $Kernel::OM->Get('Kernel::System::Main');
-$CommonObject{EncodeObject} = $Kernel::OM->Get('Kernel::System::Encode');
-$CommonObject{TimeObject}   = $Kernel::OM->Get('Kernel::System::Time');
-$CommonObject{TimeObject2}   = Kernel::System::Time->new( %CommonObject,TimeZone => -24*365);
-
-# create needed objects
-$CommonObject{DBObject}     = $Kernel::OM->Get('Kernel::System::DB');
-$CommonObject{TicketObject} = $Kernel::OM->Get('Kernel::System::Ticket');
-
 # get all tickets
-my @TicketIDs = $CommonObject{TicketObject}->TicketSearch(
+my @TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
 
     # result (required)
     Result => 'ARRAY',
 
-    States => $CommonObject{ConfigObject}->Get('EscalationSuspendStates'),
+    States => $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates'),
 
     # result limit
     Limit      => 100_000_000,
@@ -72,7 +58,7 @@ my @TicketIDs = $CommonObject{TicketObject}->TicketSearch(
 my $Count = 0;
 for my $TicketID (@TicketIDs) {
     $Count++;
-    $CommonObject{TicketObject}->TicketEscalationIndexBuild(
+    $Kernel::OM->Get('Kernel::System::Ticket')->TicketEscalationIndexBuild(
         TicketID => $TicketID,
         UserID   => 1,
     );
