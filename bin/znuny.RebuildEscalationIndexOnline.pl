@@ -1,7 +1,11 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # --
 # znuny.RebuildEscalationIndexOnline.pl - rebuild escalation index
-# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
 use strict;
@@ -36,7 +40,7 @@ my %Opts = ();
 getopt( 'h', \%Opts );
 if ( $Opts{h} ) {
     print "znuny.RebuildEscalationIndexOnline.pl - rebuild escalation index\n";
-    print "Copyright (C) 2015 Znuny GmbH, http://znuny.com/\n";
+    print "Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/\n";
     print "usage: znuny.RebuildEscalationIndexOnline.pl\n";
     exit 1;
 }
