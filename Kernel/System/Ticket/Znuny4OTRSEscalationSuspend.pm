@@ -49,10 +49,9 @@ our $ObjectManagerDisabled = 1;
         my $SuspendStateActive = 0;
         STATE:
         for my $State (@SuspendStates) {
-            if ( $Ticket{State} eq $State ) {
-                $SuspendStateActive = 1;
-                last STATE;
-            }
+            next STATE if $Ticket{State} ne $State;
+            $SuspendStateActive = 1;
+            last STATE;
         }
 
 # ---
@@ -77,13 +76,31 @@ our $ObjectManagerDisabled = 1;
                 # check if table update is needed
                 next TIME if !$Ticket{$Key};
 
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#                 # update ticket table
+#                 $DBObject->Do(
+#                     SQL =>
+#                         "UPDATE ticket SET $EscalationTimes{$Key} = 0, change_time = current_timestamp, "
+#                         . " change_by = ? WHERE id = ?",
+#                     Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+#                 );
+                my $SQL = "UPDATE ticket SET $EscalationTimes{$Key} = 0";
+                my @Bind;
+                if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                    $SQL .= ', change_time = current_timestamp, change_by = ?';
+                    push @Bind, \$Param{UserID};
+                }
+                $SQL .= " WHERE id = ?";
+                push @Bind, \$Ticket{TicketID};
+
                 # update ticket table
                 $DBObject->Do(
-                    SQL =>
-                        "UPDATE ticket SET $EscalationTimes{$Key} = 0, change_time = current_timestamp, "
-                        . " change_by = ? WHERE id = ?",
-                    Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+                    SQL  => $SQL,
+                    Bind => \@Bind,
                 );
+# ---
             }
 
             # clear ticket cache
@@ -103,12 +120,29 @@ our $ObjectManagerDisabled = 1;
 
         # update first response (if not responded till now)
         if ( !$Escalation{FirstResponseTime} ) {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#             $DBObject->Do(
+#                 SQL =>
+#                     'UPDATE ticket SET escalation_response_time = 0, change_time = current_timestamp, '
+#                     . ' change_by = ? WHERE id = ?',
+#                 Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#             );
+            my $SQL = "UPDATE ticket SET escalation_response_time = 0";
+            my @Bind;
+            if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                $SQL .= ', change_time = current_timestamp, change_by = ?';
+                push @Bind, \$Param{UserID};
+            }
+            $SQL .= " WHERE id = ?";
+            push @Bind, \$Ticket{TicketID};
+
             $DBObject->Do(
-                SQL =>
-                    'UPDATE ticket SET escalation_response_time = 0, change_time = current_timestamp, '
-                    . ' change_by = ? WHERE id = ?',
-                Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+                SQL  => $SQL,
+                Bind => \@Bind,
             );
+# ---
         }
         else {
 
@@ -120,12 +154,29 @@ our $ObjectManagerDisabled = 1;
 
             # update first response time to 0
             if (%FirstResponseDone) {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#                 $DBObject->Do(
+#                     SQL =>
+#                         'UPDATE ticket SET escalation_response_time = 0, change_time = current_timestamp, '
+#                         . ' change_by = ? WHERE id = ?',
+#                     Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#                 );
+                my $SQL = "UPDATE ticket SET escalation_response_time = 0";
+                my @Bind;
+                if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                    $SQL .= ', change_time = current_timestamp, change_by = ?';
+                    push @Bind, \$Param{UserID};
+                }
+                $SQL .= " WHERE id = ?";
+                push @Bind, \$Ticket{TicketID};
+
                 $DBObject->Do(
-                    SQL =>
-                        'UPDATE ticket SET escalation_response_time = 0, change_time = current_timestamp, '
-                        . ' change_by = ? WHERE id = ?',
-                    Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+                    SQL  => $SQL,
+                    Bind => \@Bind,
                 );
+# ---
             }
 
             # update first response time to expected escalation destination time
@@ -185,11 +236,28 @@ our $ObjectManagerDisabled = 1;
 
         # update update && do not escalate in "pending auto" for escalation update time
         if ( !$Escalation{UpdateTime} || $Ticket{StateType} =~ /^(pending)/i ) {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#             $DBObject->Do(
+#                 SQL => 'UPDATE ticket SET escalation_update_time = 0, change_time = current_timestamp, '
+#                     . ' change_by = ? WHERE id = ?',
+#                 Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#             );
+            my $SQL = "UPDATE ticket SET escalation_update_time = 0";
+            my @Bind;
+            if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                $SQL .= ', change_time = current_timestamp, change_by = ?';
+                push @Bind, \$Param{UserID};
+            }
+            $SQL .= " WHERE id = ?";
+            push @Bind, \$Ticket{TicketID};
+
             $DBObject->Do(
-                SQL => 'UPDATE ticket SET escalation_update_time = 0, change_time = current_timestamp, '
-                    . ' change_by = ? WHERE id = ?',
-                Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+                SQL  => $SQL,
+                Bind => \@Bind,
             );
+# ---
         }
         else {
 
@@ -319,23 +387,57 @@ our $ObjectManagerDisabled = 1;
 
             # else, no not escalate, because latest sender was agent
             else {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#                 $DBObject->Do(
+#                     SQL =>
+#                         'UPDATE ticket SET escalation_update_time = 0, change_time = current_timestamp, '
+#                         . ' change_by = ? WHERE id = ?',
+#                     Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+#                 );
+                my $SQL = "UPDATE ticket SET escalation_update_time = 0";
+                my @Bind;
+                if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                    $SQL .= ', change_time = current_timestamp, change_by = ?';
+                    push @Bind, \$Param{UserID};
+                }
+                $SQL .= " WHERE id = ?";
+                push @Bind, \$Ticket{TicketID};
+
                 $DBObject->Do(
-                    SQL =>
-                        'UPDATE ticket SET escalation_update_time = 0, change_time = current_timestamp, '
-                        . ' change_by = ? WHERE id = ?',
-                    Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ]
+                    SQL  => $SQL,
+                    Bind => \@Bind,
                 );
+# ---
             }
         }
 
         # update solution
         if ( !$Escalation{SolutionTime} ) {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#             $DBObject->Do(
+#                 SQL =>
+#                     'UPDATE ticket SET escalation_solution_time = 0, change_time = current_timestamp, '
+#                     . ' change_by = ? WHERE id = ?',
+#                 Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+#             );
+            my $SQL = "UPDATE ticket SET escalation_solution_time = 0";
+            my @Bind;
+            if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                $SQL .= ', change_time = current_timestamp, change_by = ?';
+                push @Bind, \$Param{UserID};
+            }
+            $SQL .= " WHERE id = ?";
+            push @Bind, \$Ticket{TicketID};
+
             $DBObject->Do(
-                SQL =>
-                    'UPDATE ticket SET escalation_solution_time = 0, change_time = current_timestamp, '
-                    . ' change_by = ? WHERE id = ?',
-                Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+                SQL  => $SQL,
+                Bind => \@Bind,
             );
+# ---
         }
         else {
 
@@ -348,12 +450,30 @@ our $ObjectManagerDisabled = 1;
             # update solution time to 0
             if (%SolutionDone) {
 
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#                 $DBObject->Do(
+#                     SQL =>
+#                         'UPDATE ticket SET escalation_solution_time = 0, change_time = current_timestamp, '
+#                         . ' change_by = ? WHERE id = ?',
+#                     Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+#                 );
+                my $SQL = "UPDATE ticket SET escalation_solution_time = 0";
+                my @Bind;
+                if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                    $SQL .= ', change_time = current_timestamp, change_by = ?';
+                    push @Bind, \$Param{UserID};
+                }
+                $SQL .= " WHERE id = ?";
+                push @Bind, \$Ticket{TicketID};
+
                 $DBObject->Do(
-                    SQL =>
-                        'UPDATE ticket SET escalation_solution_time = 0, change_time = current_timestamp, '
-                        . ' change_by = ? WHERE id = ?',
-                    Bind => [ \$Param{UserID}, \$Ticket{TicketID}, ],
+                    SQL  => $SQL,
+                    Bind => \@Bind,
                 );
+# ---
+
             }
             else {
 # ---
@@ -412,11 +532,28 @@ our $ObjectManagerDisabled = 1;
 
         # update escalation time (< escalation time)
         if ( defined $EscalationTime ) {
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#             $DBObject->Do(
+#                 SQL => 'UPDATE ticket SET escalation_time = ?, change_time = current_timestamp, '
+#                     . ' change_by = ? WHERE id = ?',
+#                 Bind => [ \$EscalationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
+#             );
+            my $SQL  = "UPDATE ticket SET escalation_time = ?";
+            my @Bind = ( \$EscalationTime );
+            if ( !$Param{Suspend} || !$SuspendStateActive ) {
+                $SQL .= ', change_time = current_timestamp, change_by = ?';
+                push @Bind, \$Param{UserID};
+            }
+            $SQL .= " WHERE id = ?";
+            push @Bind, \$Ticket{TicketID};
+
             $DBObject->Do(
-                SQL => 'UPDATE ticket SET escalation_time = ?, change_time = current_timestamp, '
-                    . ' change_by = ? WHERE id = ?',
-                Bind => [ \$EscalationTime, \$Param{UserID}, \$Ticket{TicketID}, ],
+                SQL  => $SQL,
+                Bind => \@Bind,
             );
+# ---
         }
 
         # clear ticket cache
