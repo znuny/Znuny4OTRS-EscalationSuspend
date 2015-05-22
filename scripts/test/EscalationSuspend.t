@@ -14,11 +14,11 @@ use utf8;
 use vars (qw($Self));
 
 # get needed objects
-my $HelperObject            = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
-my $TicketObject            = $Kernel::OM->Get('Kernel::System::Ticket');
-my $QueueObject             = $Kernel::OM->Get('Kernel::System::Queue');
-my $TimeObject              = $Kernel::OM->Get('Kernel::System::Time');
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
+my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
 
 # Subs:
 # Kernel::System::Ticket::TicketEscalationIndexBuild
