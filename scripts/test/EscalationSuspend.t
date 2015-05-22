@@ -11,14 +11,7 @@ use strict;
 use warnings;
 use utf8;
 
-use vars qw($Self);
-
-use Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
-use Kernel::System::State;
-use Kernel::System::Ticket;
-use Kernel::Config;
-use Kernel::System::DB;
-use Kernel::System::Time;
+use vars (qw($Self));
 
 # get needed objects
 my $HelperObject            = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
@@ -26,7 +19,6 @@ my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
 my $TicketObject            = $Kernel::OM->Get('Kernel::System::Ticket');
 my $QueueObject             = $Kernel::OM->Get('Kernel::System::Queue');
 my $TimeObject              = $Kernel::OM->Get('Kernel::System::Time');
-my $EscalationSuspendObject = $Kernel::OM->Get('Kernel::System::Ticket::Znuny4OTRSEscalationSuspend');
 
 # Subs:
 # Kernel::System::Ticket::TicketEscalationIndexBuild
@@ -368,7 +360,7 @@ sleep(10);
 $SuspendStateActive = 1;
 
 #return $DestinationTime = $StartTime + $ResponseTime - $EscalatedTime;
-$TicketEscalationSuspendCalculat = $EscalationSuspendObject->TicketEscalationSuspendCalculate(
+$TicketEscalationSuspendCalculat = $TicketObject->TicketEscalationSuspendCalculate(
     StartTime    => $Ticket{Created},
     TicketID     => $TicketID,
     ResponseTime => $Escalation{UpdateTime},
@@ -388,7 +380,7 @@ $Self->IsNot(
 
 # Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate
 # return $WorkingTimeUnsuspended ... (without pending status)
-$TicketWorkingTimeSuspendCalculate = $EscalationSuspendObject->TicketWorkingTimeSuspendCalculate(
+$TicketWorkingTimeSuspendCalculate = $TicketObject->TicketWorkingTimeSuspendCalculate(
     StartTime => $Ticket{Created},
     TicketID  => $TicketID,
     Calendar  => $Escalation{Calendar},
@@ -412,7 +404,7 @@ $Success = $TicketObject->TicketStateSet(
     UserID   => 1,
 );
 
-%TicketGetClosed = $EscalationSuspendObject->TicketGetClosed(
+%TicketGetClosed = $TicketObject->TicketGetClosed(
     Ticket   => \%Ticket,
     TicketID => $Ticket{TicketID},
     UserID   => 1,

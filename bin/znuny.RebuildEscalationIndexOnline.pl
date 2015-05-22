@@ -55,6 +55,7 @@ for my $TicketID (@TicketIDs) {
     $Count++;
     $Kernel::OM->Get('Kernel::System::Ticket')->TicketEscalationIndexBuild(
         TicketID => $TicketID,
+        Suspend  => 1,
         UserID   => 1,
     );
     if ( ( $Count / 2000 ) == int( $Count / 2000 ) ) {
