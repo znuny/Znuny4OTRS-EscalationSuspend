@@ -18,6 +18,8 @@ use lib dirname($RealBin);
 use lib dirname($RealBin) . "/Kernel/cpan-lib";
 
 use Getopt::Std;
+use Kernel::System::ObjectManager;
+use Kernel::System::VariableCheck qw(:all);
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
