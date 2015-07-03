@@ -618,12 +618,18 @@ our $ObjectManagerDisabled = 1;
         for my $Row (@StateHistory) {
             if ( $Row->{CreatedUnix} <= $DestinationTime ) {
 
+                next ROW if !$Row->{State};
+
                 # old state change, remember if suspend state
                 $SuspendState = 0;
+                STATE:
                 for my $State (@SuspendStates) {
-                    if ( $Row->{State} eq $State ) {
-                        $SuspendState = 1;
-                    }
+
+                    next STATE if $Row->{State} ne $State;
+
+                    $SuspendState = 1;
+
+                    last STATE;
                 }
                 next ROW;
             }
