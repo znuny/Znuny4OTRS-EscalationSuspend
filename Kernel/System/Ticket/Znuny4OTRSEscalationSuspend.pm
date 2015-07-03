@@ -669,12 +669,17 @@ our $ObjectManagerDisabled = 1;
                 }
             }
 
+            next ROW if $Row->{State};
+
             # remember if suspend state
             $SuspendState = 0;
+            STATE:
             for my $State (@SuspendStates) {
-                if ( $Row->{State} eq $State ) {
-                    $SuspendState = 1;
-                }
+                next STATE if $Row->{State} ne $State;
+
+                $SuspendState = 1;
+
+                last STATE;
             }
         }
 
@@ -718,10 +723,16 @@ our $ObjectManagerDisabled = 1;
             for my $Row (@StateHistory) {
 
                 # check if current state should be suspended
-                $SuspendState = 0;
-                for my $State (@SuspendStates) {
-                    if ( $Row->{State} eq $State ) {
+                if ( $Row->{State} ) {
+                    $SuspendState = 0;
+                    STATE:
+                    for my $State (@SuspendStates) {
+
+                        next STATE if $Row->{State} ne $State;
+
                         $SuspendState = 1;
+
+                        last STATE;
                     }
                 }
 
@@ -808,12 +819,18 @@ our $ObjectManagerDisabled = 1;
 
             if ( $Row->{CreatedUnix} <= $DestinationTime ) {
 
+                next ROW if !$Row->{State};
+
                 # old state change, remember if suspend state
                 $SuspendState = 0;
+                STATE:
                 for my $State (@SuspendStates) {
-                    if ( $Row->{State} eq $State ) {
-                        $SuspendState = 1;
-                    }
+
+                    next STATE if $Row->{State} ne $State;
+
+                    $SuspendState = 1;
+
+                    last STATE;
                 }
                 next ROW;
             }
@@ -835,10 +852,17 @@ our $ObjectManagerDisabled = 1;
 
             # remember if suspend state
             $SuspendState = 0;
+
+            next ROW if !$Row->{State};
+
+            STATE:
             for my $State (@SuspendStates) {
-                if ( $Row->{State} eq $State ) {
-                    $SuspendState = 1;
-                }
+
+                next STATE if $Row->{State} ne $State;
+
+                $SuspendState = 1;
+
+                last STATE;
             }
         }
 
