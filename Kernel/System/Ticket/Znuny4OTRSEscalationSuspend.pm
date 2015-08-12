@@ -1,5 +1,6 @@
 # --
 # Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm - custom ticket changes
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
 # --
 # $origin: https://github.com/OTRS/otrs/blob/?/Kernel/System/Ticket.pm
