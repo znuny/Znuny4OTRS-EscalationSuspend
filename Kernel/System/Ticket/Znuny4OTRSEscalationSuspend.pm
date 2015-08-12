@@ -59,8 +59,11 @@ our $ObjectManagerDisabled = 1;
         # get database object
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
+        # cancel whole escalation
+        my $EscalationSuspendCancelEscalation = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendCancelEscalation');
+
         # do no escalations on (merge|close|remove) tickets
-        if ( $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
+        if ( $Ticket{StateType} =~ /^(merge|close|remove)/i || ($EscalationSuspendCancelEscalation && $SuspendStateActive) ) {
 
             # update escalation times with 0
             my %EscalationTimes = (
