@@ -1,2 +1,2 @@
-# every 3 min
-*/5 * * * * $HOME/bin/znuny.RebuildEscalationIndexOnline.pl >> /dev/null
+# every 4 min
+*/4 * * * * $HOME/bin/znuny.RebuildEscalationIndexOnline.pl >> /dev/null
