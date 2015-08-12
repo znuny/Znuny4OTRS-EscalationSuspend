@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-EscalationSuspend</Name>
-    <Version>2.1.5</Version>
+    <Version>2.1.6</Version>
+    <ChangeLog Version="2.1.6" Date="2015-08-12 15:32:33 UTC">Fixed suspend escalation of pending tickets.</ChangeLog>
     <ChangeLog Version="2.1.5" Date="2015-08-12 11:59:51 UTC">Updated (c) information. Added config setting to cancel whole escalation if ticket is in configured suspend state (EscalationSuspendStates). Ticket will not escalate at all in configured suspend state. No escalation times are shown. Ticket will not be shown in escalation view.</ChangeLog>
     <ChangeLog Version="2.1.3" Date="2015-05-28 09:44:06 UTC">Added translation file name to sopm list.</ChangeLog>
     <ChangeLog Version="2.1.2" Date="2015-05-28 07:48:03 UTC">Added chinese translation.</ChangeLog>
