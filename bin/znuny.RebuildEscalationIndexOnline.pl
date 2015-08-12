@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 # --
 # znuny.RebuildEscalationIndexOnline.pl - rebuild escalation index
+# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # Copyright (C) 2014 Znuny GmbH, http://znuny.com/
 # --
 
@@ -27,6 +28,7 @@ my %Opts = ();
 getopt( 'h', \%Opts );
 if ( $Opts{h} ) {
     print "znuny.RebuildEscalationIndexOnline.pl - rebuild escalation index\n";
+    print "Copyright (C) 2001-2014 OTRS AG, http://otrs.com/\n";
     print "Copyright (C) 2014 Znuny GmbH, http://znuny.com/\n";
     print "usage: znuny.RebuildEscalationIndexOnline.pl\n";
     exit 1;
