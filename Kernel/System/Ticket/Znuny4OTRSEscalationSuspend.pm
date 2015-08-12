@@ -673,7 +673,7 @@ our $ObjectManagerDisabled = 1;
                 }
             }
 
-            next ROW if $Row->{State};
+            next ROW if !$Row->{State};
 
             # remember if suspend state
             $SuspendState = 0;
