@@ -1,7 +1,10 @@
 # --
 # Kernel/Language/zh_CN_Znuny4OTRSEscalationSuspend.pm - the Chinese translation of the texts of Znuny4OTRSEscalationSuspend
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
-# Copyright (C) 2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
 package Kernel::Language::zh_CN_Znuny4OTRSEscalationSuspend;

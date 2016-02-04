@@ -19,14 +19,13 @@
     <Description Lang="en">A module to enable escalation suspension.</Description>
     <Description Lang="de">Ein Modul zum Ermöglichen des Anhaltens von Eskalation.</Description>
     <Filelist>
-        <File Permission="755" Location="bin/znuny.RebuildEscalationIndexOnline.pl"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSEscalationSuspend.xml"/>
         <File Permission="644" Location="Kernel/Language/de_Znuny4OTRSEscalationSuspend.pm"/>
         <File Permission="644" Location="Kernel/Language/zh_CN_Znuny4OTRSEscalationSuspend.pm"/>
+        <File Permission="644" Location="Kernel/System/Console/Command/Znuny/RebuildEscalationIndexOnline.pm"/>
         <File Permission="644" Location="Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm"/>
         <File Permission="644" Location="scripts/test/EscalationSuspend.t"/>
         <File Permission="644" Location="var/cron/rebuild_ticket_escalation_index"/>
-        <File Location="doc/de/Znuny4OTRS-EscalationSuspend.pdf" Permission="644"/>
     </Filelist>
     <IntroInstall Type="post" Title="Installation Information" Lang="en"><![CDATA[
         <br/>

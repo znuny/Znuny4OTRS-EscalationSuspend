@@ -42,4 +42,22 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Daemon::SchedulerCronTaskManager::Task###RebuildEscalationIndex" Required="0" Valid="1" ConfigLevel="100">
+        <Description Translatable="1">Rebuilds the escalation index.</Description>
+        <Group>Daemon</Group>
+        <SubGroup>Daemon::SchedulerCronTaskManager::Task</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="TaskName">RebuildEscalationIndex</Item>
+                <Item Key="Schedule">*/4 * * * *</Item> <!-- default every 4 minutes -->
+                <Item Key="Module">Kernel::System::Ticket</Item>
+                <Item Key="Function">RebuildEscallationIndex</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
 </otrs_config>
