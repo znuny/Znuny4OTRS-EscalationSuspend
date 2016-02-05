@@ -16,11 +16,6 @@ This package suspends the escalation when the ticket is in any of the states def
 
 Download the package and install it via admin interface -> package manager or use Znuny4OTRS-Repo.
 
-
-**Notice**
-
-You need to restart cron after installing this feature!
-
 **Download**
 
 For download see [http://znuny.com/en/#!/addons](http://znuny.com/en/#!/addons)
