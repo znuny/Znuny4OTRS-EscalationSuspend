@@ -1,5 +1,4 @@
 # --
-# Kernel/Language/zh_CN_Znuny4OTRSEscalationSuspend.pm - the Chinese translation of the texts of Znuny4OTRSEscalationSuspend
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see

@@ -9,12 +9,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-# ---
-# Znuny4OTRS-EscalationSuspend
-# ---
-# package Kernel::System::Console::Command::Maint::Ticket::EscalationIndexRebuild;
-package Kernel::System::Console::Command::Znuny::RebuildEscalationIndexOnline;
-# ---
+package Kernel::System::Console::Command::Maint::Ticket::EscalationIndexRebuild;
 
 use strict;
 use warnings;

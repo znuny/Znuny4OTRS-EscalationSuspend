@@ -1,2 +1,0 @@
-# every 4 min
-*/4 * * * * $HOME/bin/znuny.RebuildEscalationIndexOnline.pl >> /dev/null
