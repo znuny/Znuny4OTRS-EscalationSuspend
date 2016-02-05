@@ -1,30 +1,51 @@
 # --
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# --
+# $origin: https://github.com/OTRS/otrs/blob/d29ce846afdfb52eebed219c0671bfcc0d75e5c9/Kernel/System/Console/Command/Maint/Ticket/EscalationIndexRebuild.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+# package Kernel::System::Console::Command::Maint::Ticket::EscalationIndexRebuild;
 package Kernel::System::Console::Command::Znuny::RebuildEscalationIndexOnline;
+# ---
 
 use strict;
 use warnings;
+
+use Time::HiRes();
 
 use base qw(Kernel::System::Console::BaseCommand);
 
 our @ObjectDependencies = (
     'Kernel::Config',
-    'Kernel::System::Log',
     'Kernel::System::Ticket',
 );
 
 sub Configure {
     my ( $Self, %Param ) = @_;
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+#     $Self->Description('Completely rebuild the ticket escalation index.');
     my $Description = "RebuildEscalationIndexOnline - Rebuild Escalation Index\n";
     $Description .= "Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/";
 
     $Self->Description($Description);
+# ---
+    $Self->AddOption(
+        Name        => 'micro-sleep',
+        Description => "Specify microseconds to sleep after every ticket to reduce system load (e.g. 1000).",
+        Required    => 0,
+        HasValue    => 1,
+        ValueRegex  => qr/^\d+$/smx,
+    );
 
     return;
 }
@@ -32,40 +53,53 @@ sub Configure {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    $Self->Print("\nRebuildEscalationIndexOnline\n");
-    $Self->Print("\nCopyright (C) 2012-2016 Znuny GmbH, http://znuny.com/\n");
-    $Self->Print("<yellow>Rebuilding escalation index...</yellow>\n\n");
+    $Self->Print("<yellow>Rebuilding ticket escalation index...</yellow>\n");
+
+    # disable ticket events
+    $Kernel::OM->Get('Kernel::Config')->{'Ticket::EventModulePost'} = {};
 
     # get all tickets
     my @TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
-
-        # result (required)
-        Result => 'ARRAY',
-
+        Result     => 'ARRAY',
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
         States => $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates'),
-
-        # result limit
+# ---
         Limit      => 100_000_000,
         UserID     => 1,
         Permission => 'ro',
     );
 
-    my $Count = 0;
+    my $Count      = 0;
+    my $MicroSleep = $Self->GetOption('micro-sleep');
+
+    TICKETID:
     for my $TicketID (@TicketIDs) {
+
         $Count++;
+
         $Kernel::OM->Get('Kernel::System::Ticket')->TicketEscalationIndexBuild(
             TicketID => $TicketID,
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
             Suspend  => 1,
+# ---
             UserID   => 1,
         );
-        if ( ( $Count / 2000 ) == int( $Count / 2000 ) ) {
+
+        if ( $Count % 2000 == 0 ) {
             my $Percent = int( $Count / ( $#TicketIDs / 100 ) );
-            print "<yellow>  $Count of $#TicketIDs processed ($Percent% done).</yellow>\n";
+            $Self->Print(
+                "<yellow>$Count</yellow> of <yellow>$#TicketIDs</yellow> processed (<yellow>$Percent %</yellow> done).\n"
+            );
         }
+
+        Time::HiRes::usleep($MicroSleep) if $MicroSleep;
     }
 
-    $Self->Print("\n<green>Done (Escalation index rebuilt).</green>\n");
-
+    $Self->Print("<green>Done.</green>\n");
     return $Self->ExitCodeOk();
 }
 
