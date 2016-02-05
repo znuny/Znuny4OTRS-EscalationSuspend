@@ -10,7 +10,7 @@ This package suspends the escalation when the ticket is in any of the states def
 
 - Znuny4OTRS-Repo
 
-- OTRS 4.0
+- OTRS 5.0
 
 **Installation**
 
