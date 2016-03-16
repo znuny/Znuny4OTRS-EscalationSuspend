@@ -12,6 +12,7 @@ use warnings;
 use utf8;
 
 use vars (qw($Self));
+use Kernel::System::VariableCheck qw(:all);
 
 # get needed objects
 my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
@@ -214,6 +215,120 @@ $Self->True(
     'TicketEscalationIndexBuild()  - should be true(1) if state = merged',
 );
 
+# check for EscalationSuspendCancelEscalation and EscalationSuspendStates
+# Set the ticket to pending reminder
+
+$Success = $TicketObject->TicketStateSet(
+    State    => 'pending reminder',
+    TicketID => $TicketID,
+    UserID   => 1,
+);
+
+#set pending time to 30 min
+
+my $SystemPendingTime = $Ticket{CreateTimeUnix} + ( $Pending * 60 );
+my $PendingTime = $TimeObject->SystemTime2TimeStamp(
+    SystemTime => $SystemPendingTime,
+);
+
+$Success = $TicketObject->TicketPendingTimeSet(
+    String   => $PendingTime,
+    TicketID => $TicketID,
+    UserID   => 1,
+);
+
+# clean up ticket cache to make sure we work on real values
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+    Type => 'Ticket',
+);
+
+# get the clean ticket and its escalation times
+%Ticket = $TicketObject->TicketGet(
+    TicketID => $TicketID,
+    Extended => 1,
+);
+
+# get the two necessary sysconfigs for EscalationSuspendCancelEscalation and EscalationSuspendStates
+# store them to reset them to the former value
+# and set them that cancelescalation can come into action
+my $EscalationSuspendCancelEscalationSetting
+    = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendCancelEscalation');
+if ( !$EscalationSuspendCancelEscalationSetting ) {
+    $Kernel::OM->Get('Kernel::Config')->Set(
+        Key   => 'EscalationSuspendCancelEscalation',
+        Value => 1,
+    );
+}
+
+my $EscalationSuspendStatesSetting = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates');
+
+if (
+    !IsArrayRefWithData($EscalationSuspendStatesSetting)
+    || !grep { $_ eq 'pending reminder' } @{$EscalationSuspendStatesSetting}
+    )
+{
+
+    $Kernel::OM->Get('Kernel::Config')->Set(
+        Key   => 'EscalationSuspendStates',
+        Value => ['pending reminder'],
+    );
+}
+
+# forward the system time
+$HelperObject->FixedTimeSet(
+    $SystemPendingTime + 60,
+);
+
+# store current EscalationTimes to compare them after TicketEscalationIndexBuild
+my %EscalationTimesBefore;
+for my $Key (qw(EscalationTime EscalationResponseTime EscalationSolutionTime )) {
+    $EscalationTimesBefore{$Key} = $Ticket{$Key};
+}
+
+$TicketEscalationIndexBuild = $TicketObject->TicketEscalationIndexBuild(
+    TicketID => $TicketID,
+    UserID   => 1,
+);
+
+# Again cache cleanup to get new EscalationTimes
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+    Type => 'Ticket',
+);
+
+%Ticket = $TicketObject->TicketGet(
+    TicketID => $TicketID,
+    Extended => 1,
+);
+
+# If EscalationTime, EscalationResponseTime and EscalationSolutionTime have been changed
+# compared to the previous values
+# and set to 0 IndexBuild was successful
+for my $Key (qw(EscalationTime EscalationResponseTime EscalationSolutionTime )) {
+
+    $Self->False(
+        $Ticket{$Key} eq $EscalationTimesBefore{$Key},
+        "$Key: Should get changed by TicketEscalationIndexBuild, is $Ticket{$Key} was $EscalationTimesBefore{$Key}",
+    );
+
+    $Self->False(
+        $Ticket{$Key},
+        "TicketEscalationIndexBuild() - $Key set to 0 successfully",
+    );
+}
+
+# Jump back to normal time
+$HelperObject->FixedTimeUnset();
+
+# reset Configs
+$Kernel::OM->Get('Kernel::Config')->Set(
+    Key   => 'EscalationSuspendStates',
+    Value => $EscalationSuspendStatesSetting,
+);
+$Kernel::OM->Get('Kernel::Config')->Set(
+    Key   => 'EscalationSuspendCancelEscalation',
+    Value => $EscalationSuspendCancelEscalationSetting,
+);
+
 # State = open
 $Success = $TicketObject->TicketStateSet(
     State    => 'open',
@@ -251,13 +366,6 @@ $Self->Is(
 
 # Ein Ticket wird erstellt. Die Lösungszeit beträgt 2 Stunden. Die zu erwartende Eskalation wird für 10:00 angezeigt.
 # $SuspendStateActive = 1
-
-#set pending time to 30 min
-
-my $SystemPendingTime = $Ticket{CreateTimeUnix} + ( $Pending * 60 );
-my $PendingTime = $TimeObject->SystemTime2TimeStamp(
-    SystemTime => $SystemPendingTime,
-);
 
 $Success = $TicketObject->TicketPendingTimeSet(
     String   => $PendingTime,
@@ -422,8 +530,8 @@ $Self->IsNot(
     'TicketGetClosed()   - SolutionInMin: ',
 );
 
-# put outside the brackets if you want to delete this ticket
-return 1;
+# # put outside the brackets if you want to delete this ticket
+# return 1;
 
 # delete created ticket
 $Success = $TicketObject->TicketDelete(
