@@ -530,8 +530,8 @@ $Self->IsNot(
     'TicketGetClosed()   - SolutionInMin: ',
 );
 
-# # put outside the brackets if you want to delete this ticket
-# return 1;
+# put outside the brackets if you want to delete this ticket
+return 1;
 
 # delete created ticket
 $Success = $TicketObject->TicketDelete(
