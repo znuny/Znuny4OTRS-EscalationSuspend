@@ -1,0 +1,20 @@
+image: otrs5ci
+
+before_script:
+  - env
+  - pwd
+  - /run.sh
+  - su -c "git clone https://github.com/OTRS/module-tools.git" -s /bin/bash otrs
+  - su -c "module-tools/link.pl . /opt/otrs/" -s /bin/bash otrs
+  - su -c "cp module-tools/CodeInstall.pl /opt/otrs/bin" -s /bin/bash otrs
+  - su -c "if [ -e '/opt/otrs/bin/otrs.Console.pl' ]; then perl /opt/otrs/bin/otrs.Console.pl Maint::Cache::Delete && perl /opt/otrs/bin/otrs.Console.pl Maint::Loader::CacheCleanup && perl /opt/otrs/bin/otrs.Console.pl Maint::Config::Rebuild; else perl /opt/otrs/bin/otrs.DeleteCache.pl && perl /opt/otrs/bin/otrs.LoaderCache.pl -o delete && perl /opt/otrs/bin/otrs.RebuildConfig.pl; fi" -s /bin/bash otrs
+
+stages:
+  - test
+
+job_unit_otrs_Znuny4OTRSEscalationSuspend:
+  stage: test
+  script:
+        - su -c "/opt/otrs/bin/otrs.UnitTest.pl -n  EscalationSuspend" -s /bin/bash otrs
+
+
