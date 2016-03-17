@@ -15,6 +15,6 @@ stages:
 job_unit_otrs_Znuny4OTRSEscalationSuspend:
   stage: test
   script:
-        - su -c "/opt/otrs/bin/otrs.UnitTest.pl -n  EscalationSuspend" -s /bin/bash otrs
+        - su -c "if [ -e '/opt/otrs/bin/otrs.Console.pl' ]; then perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspend; else /opt/otrs/bin/otrs.UnitTest.pl -n  EscalationSuspend; fi" -s /bin/bash otrs
 
 
