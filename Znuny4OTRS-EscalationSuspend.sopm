@@ -35,12 +35,6 @@
         This package suspends the escalation when the ticket is in any of the states defined in EscalationSuspendStates via SysConfig (per default suspend escalation for 'pending auto close+', 'pending auto close-' and 'pending reminder').
         <br/>
         <br/>
-        <b>Notice</b>
-        <br/>
-        <br/>
-        <p>You need to restart cron to make this feature working!</p>
-        <br/>
-        <br/>
         <p>
         Your Znuny Team!
         <br/>
