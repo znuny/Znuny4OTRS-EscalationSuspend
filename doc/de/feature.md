@@ -1,6 +1,15 @@
 # Anhalten der Eskalationsberechnung bei bestimmten Status
 
 Mit dieser Erweiterung können Sie die Eskalationsberechnung eines Tickets "anhalten", solange es in einem konfigurierten Status verweilt.
+Bitte achten Sie darauf den Cronjob in der Crontab des OTRS einzutragen.
+Dazu muss folgende Zeile in der Crontab des OTRS Users eingetragen werden:
+
+```
+# every 4 min
+*/4 * * * * $HOME/bin/znuny.RebuildEscalationIndexOnline.pl >> /dev/null
+```
+
+Sollten Sie keine angepassten Cronjobs verwenden, kann auch das Script /opt/otrs/bin/Cron.sh start" ausgeführt werden.
 
 Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "anhalten" werden soll. Die entsprechenden Status können über die SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend) konfiguriert werden. Im Standard sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen.
 
