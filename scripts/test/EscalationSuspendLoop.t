@@ -52,6 +52,8 @@ $Self->Is(
     'Correct TimeZone set',
 );
 
+print STDERR "TimeStamp 1: ". $TimeObject->CurrentTimestamp() ."\n";
+
 $ConfigObject->Set(
     Key   => 'TimeWorkingHours',
     Value => {
@@ -128,6 +130,9 @@ my $TicketCreateTime = $TimeObject->TimeStamp2SystemTime(
 
 $HelperObject->FixedTimeSet($TicketCreateTime);
 
+
+print STDERR "TimeStamp 2: ". $TimeObject->CurrentTimestamp() ."\n";
+
 my $TicketID = $HelperObject->TicketCreate(
     QueueID => $QueueID,
 );
@@ -137,6 +142,8 @@ my $PendingStateTime = $TimeObject->TimeStamp2SystemTime(
 );
 
 $HelperObject->FixedTimeSet($PendingStateTime);
+
+print STDERR "TimeStamp 3: ". $TimeObject->CurrentTimestamp() ."\n";
 
 $TicketObject->TicketStateSet(
     State    => 'pending reminder',
@@ -156,6 +163,8 @@ my $OpenStateTime = $TimeObject->TimeStamp2SystemTime(
 
 $HelperObject->FixedTimeSet($OpenStateTime);
 
+print STDERR "TimeStamp 4: ". $TimeObject->CurrentTimestamp() ."\n";
+
 $TicketObject->TicketStateSet(
     State    => 'open',
     TicketID => $TicketID,
@@ -173,6 +182,8 @@ my $SendAnswerTime = $TimeObject->TimeStamp2SystemTime(
 );
 
 $HelperObject->FixedTimeSet($SendAnswerTime);
+
+print STDERR "TimeStamp 5: ". $TimeObject->CurrentTimestamp() ."\n";
 
 $TicketObject->TicketStateSet(
     State    => 'pending reminder',
@@ -203,6 +214,11 @@ $Self->Is(
     'SolutionTimeDestinationTime calculated correctly'
 );
 
+print STDERR "TimeStamp 6: ". $TimeObject->CurrentTimestamp() ."\n";
+
 $HelperObject->FixedTimeUnset();
+
+print STDERR "TimeStamp 7: ". $TimeObject->CurrentTimestamp() ."\n";
+
 
 1;
