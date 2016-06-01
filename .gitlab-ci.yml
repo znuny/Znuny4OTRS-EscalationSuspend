@@ -6,8 +6,7 @@ before_script:
   - /run.sh
   - su -c "git clone https://github.com/OTRS/module-tools.git" -s /bin/bash otrs
   - su -c "module-tools/link.pl . /opt/otrs/" -s /bin/bash otrs
-  - su -c "cp module-tools/CodeInstall.pl /opt/otrs/bin" -s /bin/bash otrs
-  - su -c "if [ -e '/opt/otrs/bin/otrs.Console.pl' ]; then perl /opt/otrs/bin/otrs.Console.pl Maint::Cache::Delete && perl /opt/otrs/bin/otrs.Console.pl Maint::Loader::CacheCleanup && perl /opt/otrs/bin/otrs.Console.pl Maint::Config::Rebuild; else perl /opt/otrs/bin/otrs.DeleteCache.pl && perl /opt/otrs/bin/otrs.LoaderCache.pl -o delete && perl /opt/otrs/bin/otrs.RebuildConfig.pl; fi" -s /bin/bash otrs
+  - su -c "/opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-EscalationSuspend.sopm" -s /bin/bash otrs
 
 stages:
   - test
@@ -15,6 +14,5 @@ stages:
 job_unit_otrs_Znuny4OTRSEscalationSuspend:
   stage: test
   script:
-        - su -c "if [ -e '/opt/otrs/bin/otrs.Console.pl' ]; then perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspend; else /opt/otrs/bin/otrs.UnitTest.pl -n  EscalationSuspend; fi" -s /bin/bash otrs
-
-
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspend" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspendLoop" -s /bin/bash otrs
