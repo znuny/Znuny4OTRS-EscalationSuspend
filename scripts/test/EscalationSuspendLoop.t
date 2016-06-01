@@ -46,6 +46,12 @@ my $QueueID = $QueueObject->QueueAdd(
     UserID            => 1,
 );
 
+$Self->Is(
+    $ConfigObject->Get('TimeZone'),
+    undef,
+    'Correct TimeZone set',
+);
+
 $ConfigObject->Set(
     Key   => 'TimeWorkingHours',
     Value => {
