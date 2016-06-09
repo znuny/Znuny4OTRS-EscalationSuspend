@@ -25,7 +25,7 @@ my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
 # Kernel::System::Ticket::TicketEscalationIndexBuild
 # Kernel::System::Ticket::TicketEscalationSuspendCalculate
 # Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate
-# Kernel::System::Ticket::TicketGetClosed
+# Kernel::System::Ticket::_TicketGetClosed
 
 # Var
 my $MySolutionTime = 120;
@@ -393,19 +393,19 @@ $Self->IsNot(
     'TicketWorkingTimeSuspendCalculate()   - WorkingTime:',
 );
 
-# Kernel::System::Ticket::TicketGetClosed
+# Kernel::System::Ticket::_TicketGetClosed
 
 # put outside the brackets if you want to close this ticket
 return 1;
 
-# close ticket to check the TicketGetClosed funtkion
+# close ticket to check the _TicketGetClosed function
 $Success = $TicketObject->TicketStateSet(
     State    => 'closed successful',
     TicketID => $TicketID,
     UserID   => 1,
 );
 
-%TicketGetClosed = $TicketObject->TicketGetClosed(
+%TicketGetClosed = $TicketObject->_TicketGetClosed(
     Ticket   => \%Ticket,
     TicketID => $Ticket{TicketID},
     UserID   => 1,

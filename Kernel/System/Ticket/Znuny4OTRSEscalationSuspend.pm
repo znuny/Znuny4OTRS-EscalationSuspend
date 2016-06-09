@@ -446,7 +446,7 @@ our $ObjectManagerDisabled = 1;
         else {
 
             # find solution time / first close time
-            my %SolutionDone = $Self->TicketGetClosed(
+            my %SolutionDone = $Self->_TicketGetClosed(
                 TicketID => $Ticket{TicketID},
                 Ticket   => \%Ticket,
             );
@@ -884,7 +884,7 @@ our $ObjectManagerDisabled = 1;
         return $WorkingTimeUnsuspended;
     }
 
-    sub Kernel::System::Ticket::TicketGetClosed {
+    sub Kernel::System::Ticket::_TicketGetClosed { ## no critic
         my ( $Self, %Param ) = @_;
 
         # check needed stuff
