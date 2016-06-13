@@ -793,6 +793,12 @@ our $ObjectManagerDisabled = 1;
 
         # get states in which to suspend escalations
         my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
+        my @ClosedStates = $Kernel::OM->Get('Kernel::System::State')->StateGetStatesByType(
+            StateType => ['closed'],
+            Result    => 'Name',
+        );
+
+        my @SuspendAndClosedStates = (@SuspendStates, @ClosedStates);
 
         # get stateid->state map
         my %StateList = $Kernel::OM->Get('Kernel::System::State')->StateList(
@@ -839,7 +845,7 @@ our $ObjectManagerDisabled = 1;
                 # old state change, remember if suspend state
                 $SuspendState = 0;
                 STATE:
-                for my $State (@SuspendStates) {
+                for my $State (@SuspendAndClosedStates) {
 
                     next STATE if $Row->{State} ne $State;
 
@@ -871,7 +877,7 @@ our $ObjectManagerDisabled = 1;
             next ROW if !$Row->{State};
 
             STATE:
-            for my $State (@SuspendStates) {
+            for my $State (@SuspendAndClosedStates) {
 
                 next STATE if $Row->{State} ne $State;
 
