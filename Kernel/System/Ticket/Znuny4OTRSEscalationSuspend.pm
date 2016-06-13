@@ -490,7 +490,14 @@ use warnings;
         my ( $Self, %Param ) = @_;
 
         # get states in which to suspend escalations
+
         my @SuspendStates = @{ $Self->{ConfigObject}->Get('EscalationSuspendStates') };
+        my @ClosedStates = $Self->{StateObject}->StateGetStatesByType(
+            StateType => ['closed'],
+            Result    => 'Name',
+        );
+
+        my @SuspendAndClosedStates = (@SuspendStates, @ClosedStates);
 
         # get stateid->state map
         my %StateList = $Self->{StateObject}->StateList(
@@ -534,7 +541,7 @@ use warnings;
 
                 # old state change, remember if suspend state
                 $SuspendState = 0;
-                for my $State (@SuspendStates) {
+                for my $State (@SuspendAndClosedStates) {
                     if ( $Row->{State} eq $State ) {
                         $SuspendState = 1;
                     }
@@ -559,7 +566,7 @@ use warnings;
 
             # remember if suspend state
             $SuspendState = 0;
-            for my $State (@SuspendStates) {
+            for my $State (@SuspendAndClosedStates) {
                 if ( $Row->{State} eq $State ) {
                     $SuspendState = 1;
                 }
