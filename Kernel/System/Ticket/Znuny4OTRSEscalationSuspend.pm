@@ -658,6 +658,7 @@ our $ObjectManagerDisabled = 1;
                     $UpdateDiffTime -= $WorkingTime;
                 }
                 else {
+                    my $LoopProtectionMax = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendLoopProtection') || 100;
 
                     # target time reached, calculate exact time
                     my $LoopProtection = 0;
@@ -672,11 +673,11 @@ our $ObjectManagerDisabled = 1;
                         $UpdateDiffTime -= $WorkingTime;
 
                         $LoopProtection++;
-                        next UPDATETIME if $LoopProtection < 100;
+                        next UPDATETIME if $LoopProtection < $LoopProtectionMax;
 
                         $Kernel::OM->Get('Kernel::System::Log')->Log(
                             Priority => 'error',
-                            Message  => "Error: 100 SuspendEscalatedTickets iterations for Ticket with TicketID '$Param{TicketID}', Calendar '$Param{Calendar}', UpdateDiffTime '$UpdateDiffTime', DestinationTime '$DestinationTime'.",
+                            Message  => "Error: $LoopProtectionMax SuspendEscalatedTickets iterations for Ticket with TicketID '$Param{TicketID}', Calendar '$Param{Calendar}', UpdateDiffTime '$UpdateDiffTime', DestinationTime '$DestinationTime'.",
                         );
                         last UPDATETIME;
                     }
