@@ -60,4 +60,12 @@
             </Hash>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="EscalationSuspendLoopProtection" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines the number of iterations that should be performed at max for calculating the WorkingTime for a Ticket. Attention: Setting this configuration to high can lead to performance issues.</Description>
+        <Group>Znuny4OTRS-EscalationSuspend</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <String Regex="">500</String>
+        </Setting>
+    </ConfigItem>
 </otrs_config>
