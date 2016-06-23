@@ -658,9 +658,10 @@ our $ObjectManagerDisabled = 1;
                     $UpdateDiffTime -= $WorkingTime;
                 }
                 else {
-                    my $LoopProtectionMax = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendLoopProtection') || 100;
+                    my $LoopProtectionMax = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendLoopProtection') || 500;
 
                     # target time reached, calculate exact time
+                    my $Substract;
                     my $LoopProtection = 0;
                     UPDATETIME:
                     while ($UpdateDiffTime) {
@@ -669,10 +670,37 @@ our $ObjectManagerDisabled = 1;
                             StopTime  => $DestinationTime + $UpdateDiffTime,
                             Calendar  => $Param{Calendar},
                         );
+
+                        # if we got no working time we are come to an non-working our
+                        # so we might want to move in bigger stepts of one hour (3600)
+                        # if the steps a currently lower that that.
+                        # if so we need to store the the current time so we can substract
+                        # the difference between it and an full hour later so we come
+                        # to the right number as if we would have moved with the smaller
+                        # steps.
+                        # otherwise it might happen/has happend that we move in steps of
+                        # 1 second over a weekend (and vacation days) which causes nearly
+                        # endless loops... oops :)
+                        if ( !$WorkingTime && $UpdateDiffTime < 3600 ) {
+
+                            # check if we already have stored a substract
+                            # value and if not store the difference to
+                            # the bigger steps so we can substract them
+                            # later from the calculated destination time
+                            if (!$Substract) {
+                                $Substract = 3600 - $UpdateDiffTime;
+                            }
+
+                            # put on the bigger boots and move on faster
+                            # in steps of one hour
+                            $UpdateDiffTime = 3600;
+                        }
+
                         $DestinationTime += $UpdateDiffTime;
                         $UpdateDiffTime -= $WorkingTime;
 
                         $LoopProtection++;
+
                         next UPDATETIME if $LoopProtection < $LoopProtectionMax;
 
                         $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -681,6 +709,14 @@ our $ObjectManagerDisabled = 1;
                         );
                         last UPDATETIME;
                     }
+
+                    # check if we have stored a substract
+                    # value to get to the real destination time
+                    # other than the one hour step
+                    last ROW if !$Substract;
+
+                    $DestinationTime -= $Substract;
+
                     last ROW;
                 }
             }
