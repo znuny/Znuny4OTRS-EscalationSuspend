@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-EscalationSuspend</Name>
-    <Version>2.1.9</Version>
+    <Version>2.1.10</Version>
+    <ChangeLog Version="2.1.10" Date="2016-06-23 11:22:43 UTC">- Backport of performance issue #5 fix.&#13;
+- Added 'EscalationSuspendLoopProtection' SysConfig.</ChangeLog>
     <ChangeLog Version="2.1.9" Date="2016-06-13 19:09:24 UTC">Fixed bug: Added closed states to exception to calculate correct WorkingTime without closed oder suspends states.</ChangeLog>
     <ChangeLog Version="2.1.8" Date="2016-06-09 16:14:09 UTC">Fixed Bug: Calculation of SolutionInMin and SolutionDiffInMin is wrong.</ChangeLog>
     <ChangeLog Version="2.1.7" Date="2016-05-20 09:20:37 UTC">Added loop protection and ErrorLog.</ChangeLog>
