@@ -30,6 +30,7 @@
         <File Permission="644" Location="Kernel/Language/zh_CN_Znuny4OTRSEscalationSuspend.pm"/>
         <File Permission="644" Location="Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm"/>
         <File Permission="644" Location="scripts/test/EscalationSuspend.t"/>
+        <File Permission="644" Location="scripts/test/EscalationSuspendLoop.t"/>
         <File Permission="644" Location="var/cron/rebuild_ticket_escalation_index"/>
     </Filelist>
     <IntroInstall Type="post" Title="Installation Information" Lang="en"><![CDATA[

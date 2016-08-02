@@ -47,7 +47,7 @@
         <Group>Znuny4OTRS-EscalationSuspend</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
-            <String Regex="">100</String>
+            <String Regex="">500</String>
         </Setting>
     </ConfigItem>
 
