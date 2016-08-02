@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-EscalationSuspend</Name>
-    <Version>2.1.10</Version>
+    <Version>2.1.11</Version>
+    <ChangeLog Version="2.1.11" Date="2016-08-02 13:35:00 +0200">Increased loop protection to 500 like master.</ChangeLog>
     <ChangeLog Version="2.1.10" Date="2016-06-23 11:22:43 UTC">- Backport of performance issue #5 fix.&#13;
 - Added 'EscalationSuspendLoopProtection' SysConfig.</ChangeLog>
     <ChangeLog Version="2.1.9" Date="2016-06-13 19:09:24 UTC">Fixed bug: Added closed states to exception to calculate correct WorkingTime without closed oder suspends states.</ChangeLog>
