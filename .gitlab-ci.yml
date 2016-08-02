@@ -6,7 +6,7 @@ before_script:
   - /run.sh
   - su -c "git clone https://github.com/OTRS/module-tools.git" -s /bin/bash otrs
   - su -c "module-tools/link.pl . /opt/otrs/" -s /bin/bash otrs
-  - su -c "/opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-EscalationSuspend.sopm" -s /bin/bash otrs
+  - su -c "perl /opt/otrs/bin/znuny.AdvancedPackageManagerInstallSOPM.pl /opt/otrs/Znuny4OTRS-EscalationSuspend.sopm" -s /bin/bash otrs
 
 stages:
   - test
@@ -14,5 +14,5 @@ stages:
 job_unit_otrs_Znuny4OTRSEscalationSuspend:
   stage: test
   script:
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspend" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspendLoop" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n EscalationSuspend" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n EscalationSuspendLoop" -s /bin/bash otrs
