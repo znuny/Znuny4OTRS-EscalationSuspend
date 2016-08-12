@@ -26,8 +26,8 @@ Exemplarischer Beispielfall:
 
 ## Performance Sicherstellung
 
-Bei der Berechnung der Arbeitszeit kann es je nach Kalender-Einstellunge, Wochenenden und Feiertagen zu Auswirkungen auf die Performance kommen. Um negative Seiteneffekte vorzubeugen wurde ein Limit an Berechnungszyklen von standardmäßig 100 Iterationen eingestellt. Dies wird in über 95% der Installation nie erreicht. Sollte es doch erreicht werden, kommt es zu folgende Fehlermeldungen im Log:
+Bei der Berechnung der Arbeitszeit kann es je nach Kalender-Einstellunge, Wochenenden und Feiertagen zu Auswirkungen auf die Performance kommen. Um negative Seiteneffekte vorzubeugen wurde ein Limit an Berechnungszyklen von standardmäßig 500 Iterationen eingestellt. Dies wird in über 95% der Installation nie erreicht. Sollte es doch erreicht werden, kommt es zu folgende Fehlermeldungen im Log:
 
-Error: 100 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Calendar 'X', UpdateDiffTime 'XXX', DestinationTime 'XXX'.
+Error: 500 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Calendar 'X', UpdateDiffTime 'XXX', DestinationTime 'XXX'.
 
-Um diese vorzubeugen kann das Limit von 100 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
+Um diese vorzubeugen kann das Limit von 500 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
