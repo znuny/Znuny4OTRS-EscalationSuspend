@@ -32,5 +32,3 @@ Error: 500 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Ca
 
 Um diese vorzubeugen kann das Limit von 500 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
 
-TEST
-
