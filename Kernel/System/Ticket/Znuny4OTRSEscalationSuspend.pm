@@ -1,8 +1,14 @@
 # --
-# Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm - custom ticket changes
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
-# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/?/Kernel/System/Ticket.pm
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
+## nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
 
 package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
@@ -58,7 +64,7 @@ use warnings;
             );
 
             KEY:
-            for my $Key ( keys %EscalationTimes ) {
+            for my $Key ( sort keys %EscalationTimes ) {
 
                 # check if table update is needed
                 next KEY if !$Ticket{$Key};
@@ -673,4 +679,3 @@ use warnings;
 }
 
 1;
-
