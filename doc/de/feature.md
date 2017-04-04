@@ -22,3 +22,5 @@ Bei der Berechnung der Arbeitszeit kann es je nach Kalender-Einstellung, Wochene
 Error: 100 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Calendar 'X', UpdateDiffTime 'XXX', DestinationTime 'XXX'.
 
 Um diese vorzubeugen kann das Limit von 500 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
+
+TEST
