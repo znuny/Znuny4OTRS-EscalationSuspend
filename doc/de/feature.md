@@ -23,4 +23,38 @@ Error: 100 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Ca
 
 Um diese vorzubeugen kann das Limit von 500 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
 
-TEST
+
+## Eskalations-Benachrichtung trotz "pending-Status"
+
+Wird der Status auf pending gesetzt, nachdem das Ticket bereits eskaliert ist, werden im Standard weiterhin Benachrichtigungen versandt. Dies kann durch folgende EInstellung in der SysConfig abgeschalten werden:
+
+Admin -> SysConfig
+-> Gruppe 'Znuny4OTRS-EscalationSuspend'
+-> Core
+-> SuspendEscalatedTickets auf 'ja' setzten
+
+
+<ConfigItem Name="SuspendEscalatedTickets" Required="1" Valid="1">
+        <Description Translatable="1">Suspend already escalated tickets.</Description>
+        <Group>Znuny4OTRS-EscalationSuspend</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0">No</Item>
+                <Item Key="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+
+
+<ConfigItem Name="EscalationSuspendCancelEscalation" Required="1" Valid="1">
+        <Description Translatable="1">Cancel whole escalation if ticket is in configured suspend state (EscalationSuspendStates). Ticket will not escalate at all in configured suspend state. No escalation times are shown. Ticket will not be shown in escalation view.</Description>
+        <Group>Znuny4OTRS-EscalationSuspend</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0">No</Item>
+                <Item Key="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>    
