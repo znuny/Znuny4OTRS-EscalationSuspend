@@ -33,8 +33,8 @@ Admin -> SysConfig
 -> Core
 -> SuspendEscalatedTickets auf 'ja' setzten
 
-
-<ConfigItem Name="SuspendEscalatedTickets" Required="1" Valid="1">
+```XML
+    <ConfigItem Name="SuspendEscalatedTickets" Required="1" Valid="1">
         <Description Translatable="1">Suspend already escalated tickets.</Description>
         <Group>Znuny4OTRS-EscalationSuspend</Group>
         <SubGroup>Core</SubGroup>
@@ -47,7 +47,7 @@ Admin -> SysConfig
     </ConfigItem>
 
 
-<ConfigItem Name="EscalationSuspendCancelEscalation" Required="1" Valid="1">
+    <ConfigItem Name="EscalationSuspendCancelEscalation" Required="1" Valid="1">
         <Description Translatable="1">Cancel whole escalation if ticket is in configured suspend state (EscalationSuspendStates). Ticket will not escalate at all in configured suspend state. No escalation times are shown. Ticket will not be shown in escalation view.</Description>
         <Group>Znuny4OTRS-EscalationSuspend</Group>
         <SubGroup>Core</SubGroup>
@@ -57,4 +57,5 @@ Admin -> SysConfig
                 <Item Key="1">Yes</Item>
             </Option>
         </Setting>
-    </ConfigItem>    
+    </ConfigItem>
+```
