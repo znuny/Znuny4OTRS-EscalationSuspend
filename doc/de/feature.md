@@ -59,5 +59,3 @@ Admin -> SysConfig
         </Setting>
     </ConfigItem>
 ```
-
-Test Bresch
