@@ -1,7 +1,5 @@
 # Anhalten der Eskalationsberechnung bei bestimmten Status
 
-TeDebug.
-
 Mit dieser Erweiterung können Sie die Eskalationsberechnung eines Tickets "anhalten", solange es sich in einem vorher definierten Status befindet. Beim Setzen des vordefinierten-Status vorm Ablaufen der Eskalationszeit, verlängert sich die Lösungszeit um die Zeitdauer, in der es sich in diesem Status befindet.
 
 Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "angehalten" werden soll. Die entsprechenden Status können über die SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend) eingestellt werden. Im Standard sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen. Diese können individuell angepasst werden.
