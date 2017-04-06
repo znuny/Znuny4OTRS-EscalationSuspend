@@ -47,4 +47,3 @@ Wird der Status auf pending gesetzt, nachdem das Ticket bereits eskaliert ist, w
 Abschalten der gesamten Eskalation wenn ein Ticket in einem konfigurierten Status zum anhalten der Eskalationen verweilt. Am Ticket werden keine Eskalationswerte mehr angezeigt. Das Ticket taucht auch nicht in der Übersicht der eskallierten Tickets auf.
 
 ![SuspendEscalatedTickets](doc/de/images/EscalationSuspendCancelEscalation.png)
-
