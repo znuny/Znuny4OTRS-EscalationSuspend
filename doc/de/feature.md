@@ -4,6 +4,8 @@ Mit dieser Erweiterung können Sie die Eskalationsberechnung eines Tickets "anha
 
 Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "angehalten" werden soll. Die entsprechenden Status können über die SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend) eingestellt werden. Im Standard sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen. Diese können individuell angepasst werden.
 
+![SuspendEscalatedTickets](doc/de/images/EscalationSuspendStates.png)
+
 Exemplarischer Beispielfall:
 
   * 08:00 - Ein Ticket wird erstellt. Die Lösungszeit beträgt 2 Stunden. Die zu erwartende Eskalation wird für 10:00 angezeigt.
@@ -15,7 +17,11 @@ Exemplarischer Beispielfall:
   * 11:00 - Die zu erwartende Eskalation wird für 11:05 angezeigt.
   * 11:05 - Das Ticket ist eskaliert.
 
-## Performance Sicherstellung
+## SysConfig
+
+SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend)
+
+#### Performance Sicherstellung
 
 Bei der Berechnung der Arbeitszeit kann es je nach Kalender-Einstellung, Wochenenden und Feiertagen zu Auswirkungen auf die Performance kommen. Um negative Seiteneffekte vorzubeugen wurde ein Limit an Berechnungszyklen von standardmäßig 500 Iterationen eingestellt. Dies wird in über 95% der Installation nie erreicht. Sollte es doch erreicht werden, kommt es zu folgende Fehlermeldungen im Log:
 
@@ -23,39 +29,22 @@ Error: 100 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Ca
 
 Um diese vorzubeugen kann das Limit von 500 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
 
+![SuspendEscalatedTickets](doc/de/images/EscalationSuspendLoopProtection.png)
 
-## Eskalations-Benachrichtung trotz "pending-Status"
+
+#### Eskalations-Benachrichtung trotz "pending-Status"
 
 Wird der Status auf pending gesetzt, nachdem das Ticket bereits eskaliert ist, werden im Standard weiterhin Benachrichtigungen versandt. Dies kann durch folgende EInstellung in der SysConfig abgeschalten werden:
 
-Admin -> SysConfig
--> Gruppe 'Znuny4OTRS-EscalationSuspend'
--> Core
 -> SuspendEscalatedTickets auf 'ja' setzten
 
-```XML
-    <ConfigItem Name="SuspendEscalatedTickets" Required="1" Valid="1">
-        <Description Translatable="1">Suspend already escalated tickets.</Description>
-        <Group>Znuny4OTRS-EscalationSuspend</Group>
-        <SubGroup>Core</SubGroup>
-        <Setting>
-            <Option SelectedID="0">
-                <Item Key="0">No</Item>
-                <Item Key="1">Yes</Item>
-            </Option>
-        </Setting>
-    </ConfigItem>
+
+![SuspendEscalatedTickets](doc/de/images/SuspendEscalatedTickets.png)
 
 
-    <ConfigItem Name="EscalationSuspendCancelEscalation" Required="1" Valid="1">
-        <Description Translatable="1">Cancel whole escalation if ticket is in configured suspend state (EscalationSuspendStates). Ticket will not escalate at all in configured suspend state. No escalation times are shown. Ticket will not be shown in escalation view.</Description>
-        <Group>Znuny4OTRS-EscalationSuspend</Group>
-        <SubGroup>Core</SubGroup>
-        <Setting>
-            <Option SelectedID="0">
-                <Item Key="0">No</Item>
-                <Item Key="1">Yes</Item>
-            </Option>
-        </Setting>
-    </ConfigItem>
-```
+#### Eskalationen anhalten
+
+Abschalten der gesamten Eskalation wenn ein Ticket in einem konfigurierten Status zum anhalten der Eskalationen verweilt. Am Ticket werden keine Eskalationswerte mehr angezeigt. Das Ticket taucht auch nicht in der Übersicht der eskallierten Tickets auf.
+
+![SuspendEscalatedTickets](doc/de/images/EscalationSuspendCancelEscalation.png)
+
