@@ -9,6 +9,11 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+# nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
+# ---
 package Kernel::System::Console::Command::Maint::Ticket::EscalationIndexRebuild;
 
 use strict;
