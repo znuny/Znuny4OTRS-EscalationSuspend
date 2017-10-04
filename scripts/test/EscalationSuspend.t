@@ -20,6 +20,7 @@ my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
 my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
+my $CacheObject  = $Kernel::OM->Get('Kernel::System::Cache');
 
 # Subs:
 # Kernel::System::Ticket::TicketEscalationIndexBuild
@@ -238,7 +239,7 @@ $Success = $TicketObject->TicketPendingTimeSet(
 );
 
 # clean up ticket cache to make sure we work on real values
-$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+$CacheObject->CleanUp(
     Type => 'Ticket',
 );
 
@@ -251,16 +252,15 @@ $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
 # get the two necessary sysconfigs for EscalationSuspendCancelEscalation and EscalationSuspendStates
 # store them to reset them to the former value
 # and set them that cancelescalation can come into action
-my $EscalationSuspendCancelEscalationSetting
-    = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendCancelEscalation');
+my $EscalationSuspendCancelEscalationSetting = $ConfigObject->Get('EscalationSuspendCancelEscalation');
 if ( !$EscalationSuspendCancelEscalationSetting ) {
-    $Kernel::OM->Get('Kernel::Config')->Set(
+    $ConfigObject->Set(
         Key   => 'EscalationSuspendCancelEscalation',
         Value => 1,
     );
 }
 
-my $EscalationSuspendStatesSetting = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates');
+my $EscalationSuspendStatesSetting = $ConfigObject->Get('EscalationSuspendStates');
 
 if (
     !IsArrayRefWithData($EscalationSuspendStatesSetting)
@@ -268,7 +268,7 @@ if (
     )
 {
 
-    $Kernel::OM->Get('Kernel::Config')->Set(
+    $ConfigObject->Set(
         Key   => 'EscalationSuspendStates',
         Value => ['pending reminder'],
     );
@@ -291,7 +291,7 @@ $TicketEscalationIndexBuild = $TicketObject->TicketEscalationIndexBuild(
 );
 
 # Again cache cleanup to get new EscalationTimes
-$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+$CacheObject->CleanUp(
     Type => 'Ticket',
 );
 
@@ -320,11 +320,11 @@ for my $Key (qw(EscalationTime EscalationResponseTime EscalationSolutionTime )) 
 $HelperObject->FixedTimeUnset();
 
 # reset Configs
-$Kernel::OM->Get('Kernel::Config')->Set(
+$ConfigObject->Set(
     Key   => 'EscalationSuspendStates',
     Value => $EscalationSuspendStatesSetting,
 );
-$Kernel::OM->Get('Kernel::Config')->Set(
+$ConfigObject->Set(
     Key   => 'EscalationSuspendCancelEscalation',
     Value => $EscalationSuspendCancelEscalationSetting,
 );
