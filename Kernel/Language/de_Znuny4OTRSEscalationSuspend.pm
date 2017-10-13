@@ -23,6 +23,9 @@ sub Data {
     $Self->{Translation}->{'Ticket Escalation View Without Suspend State'}              = 'Ansicht nach Ticket-Eskalationen ohne ausgesetzte Status';
     $Self->{Translation}->{'Cancel whole escalation if ticket is in configured suspend state (EscalationSuspendStates). Ticket will not escalate at all in configured suspend state. No escalation times are shown. Ticket will not be shown in escalation view.'} = 'Abschalten der gesamten Eskalation wenn ein Ticket in einem konfigurierten Status zum anhalten der Eskalationen verweilt. Am Ticket werden keine Eskalationswerte mehr angezeigt. Das Ticket taucht auch nicht in der Übersicht der eskallierten Tickets auf.';
     $Self->{Translation}->{'This configuration defines the number of iterations that should be performed at max for calculating the WorkingTime for a Ticket. Attention: Setting this configuration to high can lead to performance issues.'} = 'Diese Konfiguration definiert die Anzahl von Iterationen, die durchgeführt werden sollen um die Arbeitszeit eines Tickets zu errechnen. Achtung: Ist diese Konfiguration auf einen zu hohen Wert gesetzt, kann es zu negativen Auswirkungen auf die Performance kommen.';
+    $Self->{Translation}->{'Overloads (redefines) existing functions in Kernel::System::Ticket. Used to easily add customizations.'}
+        = 'Überlädt existierende Funktionen aus Kernel::System::Ticket.';
+    $Self->{Translation}->{'Rebuilds the escalation index.'} = 'Erneuert den Eskalationsindex.';
 
     return 1;
 }

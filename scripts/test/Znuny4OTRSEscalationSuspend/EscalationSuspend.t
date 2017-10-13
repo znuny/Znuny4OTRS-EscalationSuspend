@@ -14,13 +14,27 @@ use utf8;
 use vars (qw($Self));
 use Kernel::System::VariableCheck qw(:all);
 
-# get needed objects
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
-my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
-my $CacheObject  = $Kernel::OM->Get('Kernel::System::Cache');
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+
+my $HelperObject  = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
+my $TicketObject  = $Kernel::OM->Get('Kernel::System::Ticket');
+my $QueueObject   = $Kernel::OM->Get('Kernel::System::Queue');
+my $TimeObject    = $Kernel::OM->Get('Kernel::System::ZnunyTime');
+my $CacheObject   = $Kernel::OM->Get('Kernel::System::Cache');
+my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
+
+# Disable transaction mode for escalation index ticket event module
+my $TicketEventModulePostConfig = $ConfigObject->Get('Ticket::EventModulePost');
+$TicketEventModulePostConfig->{'6000-EscalationIndex'}->{Transaction} = 0;
+$ConfigObject->Set(
+    Key   => 'Ticket::EventModulePost',
+    Value => $TicketEventModulePostConfig,
+);
 
 # Subs:
 # Kernel::System::Ticket::TicketEscalationIndexBuild
@@ -28,11 +42,10 @@ my $CacheObject  = $Kernel::OM->Get('Kernel::System::Cache');
 # Kernel::System::Ticket::TicketWorkingTimeSuspendCalculate
 # Kernel::System::Ticket::TicketGetClosed
 
-# Var
 my $MySolutionTime = 120;
 my $MyQueueName    = "MyTestQueue";
 my $MyTicketName   = "MyTestTicket";
-my $Pending        = 5;                #min
+my $Pending        = 5;                # minutes
 my $QueueID;
 my $Success;
 my $TicketEscalationIndexBuild;
@@ -48,11 +61,7 @@ my $SuspendStateActive;
 my %QueueGet = $QueueObject->QueueGet(
     Name => $MyQueueName,
 );
-
-# QueueID of  $MyQueueName is...
 $QueueID = $QueueGet{QueueID};
-
-# if Queue exsists
 if ($QueueID) {
 
     $Self->Is(
@@ -102,35 +111,24 @@ else {
 }
 
 # create a ticket for testing
-
-my $MyTicketNr = "201501101000001";
-my $TicketID   = $TicketObject->TicketCheckNumber(
-    Tn => $MyTicketNr,
+my $TicketID = $TicketObject->TicketCreate(
+    Title         => $MyTicketName,
+    Queue         => $MyQueueName,             # or QueueID => 123,
+    Lock          => 'unlock',
+    Priority      => '3 normal',               # or PriorityID => 2,
+    State         => 'new',                    # or StateID => 5,
+    CustomerID    => 'Znuny',
+    CustomerUser  => 'customer@example.com',
+    OwnerID       => 1,
+    ResponsibleID => 1,                        # not required
+    ArchiveFlag   => 'n',                      # (y|n) not required
+    UserID        => 1,
 );
 
-if ( !$TicketID ) {
-
-    # create a ticket "$MyTicketName" in queue "$MyQueueName"
-    $TicketID = $TicketObject->TicketCreate(
-        TN            => $MyTicketNr,              # $TicketObject->TicketCreateNumber(), # optional
-        Title         => $MyTicketName,
-        Queue         => $MyQueueName,             # or QueueID => 123,
-        Lock          => 'unlock',
-        Priority      => '3 normal',               # or PriorityID => 2,
-        State         => 'new',                    # or StateID => 5,
-        CustomerID    => 'Znuny',
-        CustomerUser  => 'customer@example.com',
-        OwnerID       => 1,
-        ResponsibleID => 1,                        # not required
-        ArchiveFlag   => 'n',                      # (y|n) not required
-        UserID        => 1,
-    );
-
-    $Self->True(
-        $TicketID,
-        "TicketCreate() - create test-ticket",
-    );
-}
+$Self->True(
+    $TicketID,
+    "TicketCreate() - create test-ticket",
+);
 
 # check TicketID
 $Self->Is(
@@ -145,45 +143,25 @@ my %Ticket = $TicketObject->TicketGet(
     Extended => 1,
 );
 
-$Self->Is(
-    $Ticket{Title},
-    $MyTicketName,
-    'Ticketname: ',
+# we need an article to check SenderType (agent|customer)
+my $ArticleID = $ArticleObject->ArticleCreate(
+    TicketID             => $TicketID,
+    ChannelName          => 'Internal',
+    IsVisibleForCustomer => 0,
+    SenderType           => 'customer',                           # agent|system|customer
+    From                 => 'Some Agent <email@example.com>',     # not required but useful
+    Subject              => 'some short description',             # required
+    Body                 => 'the message text',                   # required
+    ContentType          => 'text/plain; charset=ISO-8859-15',    # or optional Charset & MimeType
+    HistoryType    => 'OwnerUpdate',       # EmailCustomer|Move|AddNote|PriorityUpdate|WebRequestCustomer|...
+    HistoryComment => 'Some free text!',
+    UserID         => 1,
+    NoAgentNotify  => 0,                   # if you don't want to send agent notifications
 );
-my $ArticleID;
-my %Article = $TicketObject->ArticleLastCustomerArticle(
-    TicketID => $TicketID,
+$Self->True(
+    $ArticleID,
+    "create article: $ArticleID",
 );
-$ArticleID = $Article{ArticleID};
-
-if ( !$Article{ArticleID} ) {
-
-    # we need a article to check SenderType (agent|customer)
-    $ArticleID = $TicketObject->ArticleCreate(
-        TicketID    => $TicketID,
-        ArticleType => 'note-internal',                      # email-external|email-internal|phone|fax|...
-        SenderType  => 'customer',                           # agent|system|customer
-        From        => 'Some Agent <email@example.com>',     # not required but useful
-        Subject     => 'some short description',             # required
-        Body        => 'the message text',                   # required
-        ContentType => 'text/plain; charset=ISO-8859-15',    # or optional Charset & MimeType
-        HistoryType    => 'OwnerUpdate',       # EmailCustomer|Move|AddNote|PriorityUpdate|WebRequestCustomer|...
-        HistoryComment => 'Some free text!',
-        UserID         => 1,
-        NoAgentNotify  => 0,                   # if you don't want to send agent notifications
-    );
-    $Self->True(
-        $ArticleID,
-        "create article: $ArticleID",
-    );
-}
-else {
-    $Self->Is(
-        $ArticleID,
-        $ArticleID,
-        "ArticleID: ",
-    );
-}
 
 # Kernel::System::Ticket::TicketEscalationIndexBuild
 
@@ -226,11 +204,16 @@ $Success = $TicketObject->TicketStateSet(
 );
 
 #set pending time to 30 min
-
-my $SystemPendingTime = $Ticket{CreateTimeUnix} + ( $Pending * 60 );
-my $PendingTime = $TimeObject->SystemTime2TimeStamp(
-    SystemTime => $SystemPendingTime,
+my $PendingDateTime = $Kernel::OM->Create(
+    'Kernel::System::DateTime',
+    ObjectParams => {
+        String => $Ticket{Created},
+        }
 );
+$PendingDateTime->Add( Minutes => $Pending );
+
+my $SystemPendingTime = $PendingDateTime->ToEpoch();
+my $PendingTime       = $PendingDateTime->ToString();
 
 $Success = $TicketObject->TicketPendingTimeSet(
     String   => $PendingTime,
@@ -267,7 +250,6 @@ if (
     || !grep { $_ eq 'pending reminder' } @{$EscalationSuspendStatesSetting}
     )
 {
-
     $ConfigObject->Set(
         Key   => 'EscalationSuspendStates',
         Value => ['pending reminder'],
@@ -409,9 +391,12 @@ my $SystemTime = $TimeObject->SystemTime();
 
 if ( $SystemTime gt $SystemPendingTime ) {
 
-    $ArticleID = $TicketObject->ArticleCreate(
-        TicketID    => $TicketID,
-        ArticleType => 'note-internal',                      # email-external|email-internal|phone|fax|...
+    $ArticleID = $ArticleObject->ArticleCreate(
+        TicketID             => $TicketID,
+        ChannelName          => 'Internal',
+        IsVisibleForCustomer => 1,
+
+        #         ArticleType => 'note-internal',                      # email-external|email-internal|phone|fax|...
         SenderType  => 'customer',                           # agent|system|customer
         From        => 'Some Agent <email@example.com>',     # not required but useful
         Subject     => 'some short description',             # required
@@ -498,45 +483,6 @@ $Self->IsNot(
     $TicketWorkingTimeSuspendCalculate,
     '',
     'TicketWorkingTimeSuspendCalculate()   - WorkingTime:',
-);
-
-# Kernel::System::Ticket::TicketGetClosed
-
-# put outside the brackets if you want to close this ticket
-return 1;
-
-# close ticket to check the TicketGetClosed funtkion
-$Success = $TicketObject->TicketStateSet(
-    State    => 'closed successful',
-    TicketID => $TicketID,
-    UserID   => 1,
-);
-
-%TicketGetClosed = $TicketObject->TicketGetClosed(
-    Ticket   => \%Ticket,
-    TicketID => $Ticket{TicketID},
-    UserID   => 1,
-);
-
-$Self->IsNot(
-    $TicketGetClosed{SolutionDiffInMin},
-    '',
-    'TicketGetClosed()   - SolutionDiffInMin: ',
-);
-
-$Self->IsNot(
-    $TicketGetClosed{SolutionInMin},
-    '',
-    'TicketGetClosed()   - SolutionInMin: ',
-);
-
-# put outside the brackets if you want to delete this ticket
-return 1;
-
-# delete created ticket
-$Success = $TicketObject->TicketDelete(
-    TicketID => $TicketID,
-    UserID   => 1,
 );
 
 1;

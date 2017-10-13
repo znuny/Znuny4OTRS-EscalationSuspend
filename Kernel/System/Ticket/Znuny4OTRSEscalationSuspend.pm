@@ -2,13 +2,17 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 6114661c44c9ca9dec45364b54bfab036ce6e34e - Kernel/System/Ticket.pm
+# $origin: otrs - e58542a3302a50cf0eac29b63c80206f1de2608e - Kernel/System/Ticket.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-
+# ---
+# Znuny4OTRS-EscalationSuspend
+# ---
+# nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
+# ---
 package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
 use strict;
@@ -29,7 +33,7 @@ our $ObjectManagerDisabled = 1;
             if ( !defined $Param{$Needed} ) {
                 $Kernel::OM->Get('Kernel::System::Log')->Log(
                     Priority => 'error',
-                    Message  => "Need $Needed!"
+                    Message  => "Need $Needed!",
                 );
                 return;
             }
@@ -39,8 +43,10 @@ our $ObjectManagerDisabled = 1;
             TicketID      => $Param{TicketID},
             UserID        => $Param{UserID},
             DynamicFields => 0,
+            Silent        => 1,                  # Suppress warning if the ticket was deleted in the meantime.
         );
 
+        return if !%Ticket;
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
@@ -53,7 +59,6 @@ our $ObjectManagerDisabled = 1;
             $SuspendStateActive = 1;
             last STATE;
         }
-
 # ---
 
         # get database object
@@ -66,9 +71,9 @@ our $ObjectManagerDisabled = 1;
         # cancel whole escalation
         my $EscalationSuspendCancelEscalation = $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendCancelEscalation');
 
-#        if ( $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
         # do no escalations on (merge|close|remove) tickets
-        if ( $Ticket{StateType} =~ /^(merge|close|remove)/i || ($EscalationSuspendCancelEscalation && $SuspendStateActive) ) {
+#         if ( $Ticket{StateType} && $Ticket{StateType} =~ /^(merge|close|remove)/i ) {
+        if ( ( $Ticket{StateType} && $Ticket{StateType} =~ /^(merge|close|remove)/i ) || ($EscalationSuspendCancelEscalation && $SuspendStateActive) ) {
 # ---
 
             # update escalation times with 0
@@ -119,10 +124,13 @@ our $ObjectManagerDisabled = 1;
         }
 
         # get escalation properties
-        my %Escalation = $Self->TicketEscalationPreferences(
-            Ticket => \%Ticket,
-            UserID => $Param{UserID},
-        );
+        my %Escalation;
+        if (%Ticket) {
+            %Escalation = $Self->TicketEscalationPreferences(
+                Ticket => \%Ticket,
+                UserID => $Param{UserID},
+            );
+        }
 
         # find escalation times
         my $EscalationTime = 0;
@@ -152,7 +160,6 @@ our $ObjectManagerDisabled = 1;
                 Bind => \@Bind,
             );
 # ---
-
         }
         else {
 
@@ -194,17 +201,20 @@ our $ObjectManagerDisabled = 1;
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
-#
-#                # get time object
-#                my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
-#
-#                my $DestinationTime = $TimeObject->DestinationTime(
-#                    StartTime => $TimeObject->TimeStamp2SystemTime(
-#                        String => $Ticket{Created}
-#                    ),
-#                    Time     => $Escalation{FirstResponseTime} * 60,
-#                    Calendar => $Escalation{Calendar},
+#                my $DateTimeObject = $Kernel::OM->Create(
+#                    'Kernel::System::DateTime',
+#                    ObjectParams => {
+#                        String => $Ticket{Created},
+#                        }
 #                );
+
+#                $DateTimeObject->Add(
+#                    AsWorkingTime => 1,
+#                    Calendar      => $Escalation{Calendar},
+#                    Seconds       => $Escalation{FirstResponseTime} * 60,
+#                );
+
+#                my $DestinationTime = $DateTimeObject->ToEpoch();
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -212,13 +222,8 @@ our $ObjectManagerDisabled = 1;
                     Calendar     => $Escalation{Calendar},
                     Suspended    => $SuspendStateActive,
                 );
-# ---
-
 
                 # update first response time to $DestinationTime
-# ---
-# Znuny4OTRS-EscalationSuspend
-# ---
 #                $DBObject->Do(
 #                    SQL =>
 #                        'UPDATE ticket SET escalation_response_time = ?, change_time = current_timestamp, '
@@ -233,13 +238,11 @@ our $ObjectManagerDisabled = 1;
                 }
                 $SQL .= " WHERE id = ?";
                 push @Bind, \$Ticket{TicketID};
-
                 $DBObject->Do(
                     SQL  => $SQL,
                     Bind => \@Bind,
                 );
 # ---
-
                 # remember escalation time
                 $EscalationTime = $DestinationTime;
             }
@@ -269,36 +272,30 @@ our $ObjectManagerDisabled = 1;
                 Bind => \@Bind,
             );
 # ---
-
         }
         else {
 
             # check if update escalation should be set
             my @SenderHistory;
             return if !$DBObject->Prepare(
-                SQL => 'SELECT article_sender_type_id, article_type_id, create_time FROM '
+                SQL => 'SELECT article_sender_type_id, is_visible_for_customer, create_time FROM '
                     . 'article WHERE ticket_id = ? ORDER BY create_time ASC',
                 Bind => [ \$Param{TicketID} ],
             );
             while ( my @Row = $DBObject->FetchrowArray() ) {
                 push @SenderHistory, {
-                    SenderTypeID  => $Row[0],
-                    ArticleTypeID => $Row[1],
-                    Created       => $Row[2],
+                    SenderTypeID         => $Row[0],
+                    IsVisibleForCustomer => $Row[1],
+                    Created              => $Row[2],
                 };
             }
 
+            my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
+
             # fill up lookups
             for my $Row (@SenderHistory) {
-
-                # get sender type
-                $Row->{SenderType} = $Self->ArticleSenderTypeLookup(
+                $Row->{SenderType} = $ArticleObject->ArticleSenderTypeLookup(
                     SenderTypeID => $Row->{SenderTypeID},
-                );
-
-                # get article type
-                $Row->{ArticleType} = $Self->ArticleTypeLookup(
-                    ArticleTypeID => $Row->{ArticleTypeID},
                 );
             }
 
@@ -316,8 +313,8 @@ our $ObjectManagerDisabled = 1;
                 # do not use locked tickets for calculation
                 #last ROW if $Ticket{Lock} eq 'lock';
 
-                # do not use internal article types for calculation
-                next ROW if $Row->{ArticleType} =~ /-int/i;
+                # do not use internal articles for calculation
+                next ROW if !$Row->{IsVisibleForCustomer};
 
                 # only use 'agent' and 'customer' sender types for calculation
                 next ROW if $Row->{SenderType} !~ /^(agent|customer)$/;
@@ -346,16 +343,21 @@ our $ObjectManagerDisabled = 1;
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
-#                # get time object
-#                my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
-#
-#                my $DestinationTime = $TimeObject->DestinationTime(
-#                    StartTime => $TimeObject->TimeStamp2SystemTime(
-#                        String => $LastSenderTime,
-#                    ),
-#                    Time     => $Escalation{UpdateTime} * 60,
-#                    Calendar => $Escalation{Calendar},
-#                );
+#                 # create datetime object
+#                 my $DateTimeObject = $Kernel::OM->Create(
+#                     'Kernel::System::DateTime',
+#                     ObjectParams => {
+#                         String => $LastSenderTime,
+#                         }
+#                 );
+
+#                 $DateTimeObject->Add(
+#                     Seconds       => $Escalation{UpdateTime} * 60,
+#                     AsWorkingTime => 1,
+#                     Calendar      => $Escalation{Calendar},
+#                 );
+
+#                 my $DestinationTime = $DateTimeObject->ToEpoch();
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $LastSenderTime,
@@ -364,12 +366,7 @@ our $ObjectManagerDisabled = 1;
                     Suspended    => $SuspendStateActive,
                 );
 
-# ---
-
                 # update update time to $DestinationTime
-# ---
-# Znuny4OTRS-EscalationSuspend
-# ---
 #                $DBObject->Do(
 #                    SQL =>
 #                        'UPDATE ticket SET escalation_update_time = ?, change_time = current_timestamp, '
@@ -384,7 +381,6 @@ our $ObjectManagerDisabled = 1;
                 }
                 $SQL .= " WHERE id = ?";
                 push @Bind, \$Ticket{TicketID};
-
                 $DBObject->Do(
                     SQL  => $SQL,
                     Bind => \@Bind,
@@ -422,12 +418,12 @@ our $ObjectManagerDisabled = 1;
                     Bind => \@Bind,
                 );
 # ---
+
             }
         }
 
         # update solution
         if ( !$Escalation{SolutionTime} ) {
-
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
@@ -451,7 +447,7 @@ our $ObjectManagerDisabled = 1;
                 Bind => \@Bind,
             );
 # ---
-        }
+      }
         else {
 
             # find solution time / first close time
@@ -485,23 +481,27 @@ our $ObjectManagerDisabled = 1;
                     Bind => \@Bind,
                 );
 # ---
-
             }
             else {
 
-                # get time object
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
-#                my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
-#
-#                my $DestinationTime = $TimeObject->DestinationTime(
-#                    StartTime => $TimeObject->TimeStamp2SystemTime(
-#                        String => $Ticket{Created}
-#                    ),
-#                    Time     => $Escalation{SolutionTime} * 60,
-#                    Calendar => $Escalation{Calendar},
-#                );
+#                 # get datetime object
+#                 my $DateTimeObject = $Kernel::OM->Create(
+#                     'Kernel::System::DateTime',
+#                     ObjectParams => {
+#                         String => $Ticket{Created},
+#                         }
+#                 );
+
+#                 $DateTimeObject->Add(
+#                     Seconds       => $Escalation{SolutionTime} * 60,
+#                     AsWorkingTime => 1,
+#                     Calendar      => $Escalation{Calendar},
+#                 );
+
+#                 my $DestinationTime = $DateTimeObject->ToEpoch();
                 my $DestinationTime = $Self->TicketEscalationSuspendCalculate(
                     TicketID     => $Ticket{TicketID},
                     StartTime    => $Ticket{Created},
@@ -509,12 +509,8 @@ our $ObjectManagerDisabled = 1;
                     Calendar     => $Escalation{Calendar},
                     Suspended    => $SuspendStateActive,
                 );
-# ---
 
                 # update solution time to $DestinationTime
-# ---
-# Znuny4OTRS-EscalationSuspend
-# ---
 #                $DBObject->Do(
 #                    SQL =>
 #                        'UPDATE ticket SET escalation_solution_time = ?, change_time = current_timestamp, '
@@ -604,7 +600,7 @@ our $ObjectManagerDisabled = 1;
             push @StateHistory, {
                 StateID     => $Row[0],
                 Created     => $Row[1],
-                CreatedUnix => $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
+                CreatedUnix => $Kernel::OM->Get('Kernel::System::ZnunyTime')->TimeStamp2SystemTime(
                     String => $Row[1],
                 ),
                 State => $StateList{ $Row[0] },
@@ -620,7 +616,7 @@ our $ObjectManagerDisabled = 1;
         }
 
         # start time in unix format
-        my $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
+        my $DestinationTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->TimeStamp2SystemTime(
             String => $Param{StartTime},
         );
 
@@ -655,7 +651,7 @@ our $ObjectManagerDisabled = 1;
             else {
 
                 # calculate working time if no suspend state
-                my $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
+                my $WorkingTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->WorkingTime(
                     StartTime => $DestinationTime,
                     StopTime  => $Row->{CreatedUnix},
                     Calendar  => $Param{Calendar},
@@ -674,7 +670,7 @@ our $ObjectManagerDisabled = 1;
                     my $LoopProtection = 0;
                     UPDATETIME:
                     while ($UpdateDiffTime) {
-                        $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
+                        $WorkingTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->WorkingTime(
                             StartTime => $DestinationTime,
                             StopTime  => $DestinationTime + $UpdateDiffTime,
                             Calendar  => $Param{Calendar},
@@ -750,11 +746,11 @@ our $ObjectManagerDisabled = 1;
 
             # use current timestamp if we are suspended
             if ($SuspendState) {
-                $StartTime = $Kernel::OM->Get('Kernel::System::Time')->SystemTime();
+                $StartTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->SystemTime();
             }
 
             # some time left? calculate reminder as usual
-            $DestinationTime = $Kernel::OM->Get('Kernel::System::Time')->DestinationTime(
+            $DestinationTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->DestinationTime(
                 StartTime => $StartTime,
                 Time      => $UpdateDiffTime,
                 Calendar  => $Param{Calendar},
@@ -767,12 +763,12 @@ our $ObjectManagerDisabled = 1;
         elsif ( !$UpdateDiffTime && $Kernel::OM->Get('Kernel::Config')->Get('SuspendEscalatedTickets') ) {
 
             # start time in unix format
-            my $InterimDestinationTime = $Kernel::OM->Get('Kernel::System::Time')->TimeStamp2SystemTime(
+            my $InterimDestinationTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->TimeStamp2SystemTime(
                 String => $Param{StartTime},
             );
 
             # "ResponseTime" (can also be f.e. SolutionTime)
-            my $ResponseTime += $Param{ResponseTime} * 60;
+            my $ResponseTime = $Param{ResponseTime} * 60;
 
             # add cronjob run time
             $ResponseTime += 4 * 60;
@@ -805,7 +801,7 @@ our $ObjectManagerDisabled = 1;
                 else {
 
                     # calculate working time if state is suspend state
-                    my $WorkingTime = $Kernel::OM->Get('Kernel::System::Time')->WorkingTime(
+                    my $WorkingTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->WorkingTime(
                         StartTime => $InterimDestinationTime,
                         StopTime  => $Row->{CreatedUnix},
                         Calendar  => $Param{Calendar},
@@ -819,7 +815,7 @@ our $ObjectManagerDisabled = 1;
             if ( $Param{Suspended} ) {
 
                 # use current timestamp, because current state should be suspended
-                $StartTime = $Kernel::OM->Get('Kernel::System::Time')->SystemTime();
+                $StartTime = $Kernel::OM->Get('Kernel::System::ZnunyTime')->SystemTime();
             }
             else {
                 # use time of last non-suspend state
@@ -835,7 +831,7 @@ our $ObjectManagerDisabled = 1;
 
         # get required objects
         my $DBObject   = $Kernel::OM->Get('Kernel::System::DB');
-        my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+        my $TimeObject = $Kernel::OM->Get('Kernel::System::ZnunyTime');
 
         # get states in which to suspend escalations
         my @SuspendStates = @{ $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates') };
@@ -863,13 +859,14 @@ our $ObjectManagerDisabled = 1;
             Bind => [ \$Param{TicketID} ],
         );
         while ( my @Row = $DBObject->FetchrowArray() ) {
+            my $CreatedUnix = $TimeObject->TimeStamp2SystemTime(
+                String => $Row[1],
+            );
             push @StateHistory, {
                 StateID     => $Row[0],
                 Created     => $Row[1],
-                CreatedUnix => $TimeObject->TimeStamp2SystemTime(
-                    String => $Row[1],
-                ),
-                State => $StateList{ $Row[0] },
+                CreatedUnix => $CreatedUnix,
+                State       => $StateList{ $Row[0] },
             };
         }
 
@@ -936,7 +933,7 @@ our $ObjectManagerDisabled = 1;
         return $WorkingTimeUnsuspended;
     }
 
-    sub Kernel::System::Ticket::RebuildEscallationIndex {
+    sub Kernel::System::Ticket::RebuildEscalationIndex {
         my ( $Self, %Param ) = @_;
 
         # get all tickets
@@ -971,6 +968,7 @@ our $ObjectManagerDisabled = 1;
             }
         }
 
+        return 1;
     }
 
     sub Kernel::System::Ticket::_TicketGetClosed { ## no critic
@@ -1027,9 +1025,6 @@ our $ObjectManagerDisabled = 1;
 
         return if !$Data{Closed};
 
-        # for compat. wording reasons
-        $Data{SolutionTime} = $Data{Closed};
-
         # get escalation properties
         my %Escalation = $Self->TicketEscalationPreferences(
             Ticket => $Param{Ticket},
@@ -1039,23 +1034,28 @@ our $ObjectManagerDisabled = 1;
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
-#        # get time object
-#        my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
-#
-#        # get unix time stamps
-#        my $CreateTime = $TimeObject->TimeStamp2SystemTime(
-#            String => $Param{Ticket}->{Created},
-#        );
-#        my $SolutionTime = $TimeObject->TimeStamp2SystemTime(
-#            String => $Data{Closed},
-#        );
-#
-#        # get time between creation and solution
-#        my $WorkingTime = $TimeObject->WorkingTime(
-#            StartTime => $CreateTime,
-#            StopTime  => $SolutionTime,
-#            Calendar  => $Escalation{Calendar},
-#        );
+#         # create datetime object
+#         my $DateTimeObject = $Kernel::OM->Create(
+#             'Kernel::System::DateTime',
+#             ObjectParams => {
+#                 String => $Param{Ticket}->{Created},
+#                 }
+#         );
+
+#         my $SolutionTimeObj = $Kernel::OM->Create(
+#             'Kernel::System::DateTime',
+#             ObjectParams => {
+#                 String => $Data{Closed},
+#                 }
+#         );
+
+#         my $DeltaObj = $DateTimeObject->Delta(
+#             DateTimeObject => $SolutionTimeObj,
+#             ForWorkingTime => 1,
+#             Calendar       => $Escalation{Calendar},
+#         );
+
+#         my $WorkingTime = $DeltaObj ? $DeltaObj->{AbsoluteSeconds} : 0;
         my $WorkingTime = $Self->TicketWorkingTimeSuspendCalculate(
             TicketID  => $Param{Ticket}->{TicketID},
             StartTime => $Param{Ticket}->{Created},
@@ -1067,7 +1067,8 @@ our $ObjectManagerDisabled = 1;
 
         if ( $Escalation{SolutionTime} ) {
             my $EscalationSolutionTime = $Escalation{SolutionTime} * 60;
-            $Data{SolutionDiffInMin} = int( ( $EscalationSolutionTime - $WorkingTime ) / 60 );
+            $Data{SolutionDiffInMin} =
+                int( ( $EscalationSolutionTime - $WorkingTime ) / 60 );
         }
 
         return %Data;
