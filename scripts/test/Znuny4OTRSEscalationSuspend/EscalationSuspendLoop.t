@@ -39,9 +39,9 @@ my $QueueID = $QueueObject->QueueAdd(
     Name              => 'UnitTest' . $RandomID,
     ValidID           => 1,
     GroupID           => 1,
-    FirstResponseTime => 240,                      # 4h
+    FirstResponseTime => 4 * 60,                   # 4h
     UpdateTime        => 0,
-    SolutionTime      => 1440,                     # 24h
+    SolutionTime      => 24 * 60,                  # 24h
     UnlockTimeout     => 0,
     FollowUpId        => 1,
     FollowUpLock      => 1,
@@ -55,23 +55,27 @@ my $QueueID = $QueueObject->QueueAdd(
 $ConfigObject->Set(
     Key   => 'TimeWorkingHours',
     Value => {
-        'Mon' => [ 8 .. 18 ],
+        'Mon' => [ 8 .. 18 ],    # 11 h
         'Tue' => [ 8 .. 18 ],
         'Wed' => [ 8 .. 18 ],
         'Thu' => [ 8 .. 18 ],
-        'Fri' => [ 8 .. 15 ],
+        'Fri' => [ 8 .. 15 ],    # 8 h
         'Sat' => [],
         'Sun' => [],
     },
 );
 
 # Ticket creation
+# solution time is then 2016-04-14 18:50:08
 $HelperObject->FixedTimeSetByTimeStamp('2016-04-12 16:50:08');    # Tuesday
 my $TicketID = $HelperObject->TicketCreate(
     QueueID => $QueueID,
 );
 
 # Set pending reminder
+# TicketEscalationSuspendCalculate will add 4 minutes to prevent escalation
+# pending reminder is configured as suspend state
+# solution time is then 2016-04-14 18:54:08
 $HelperObject->FixedTimeSetByTimeStamp('2016-04-12 16:52:53');    # Tuesday
 $TicketObject->TicketStateSet(
     State    => 'pending reminder',
@@ -85,6 +89,10 @@ $TicketObject->TicketPendingTimeSet(
 );
 
 # Set status "open"
+# This leads to +3:09 minutes because 16:52:53 from above + 4 minutes (see above)
+# = 16:56:53 and 17:00:02 - 16:56:53 = 3:09
+# open is not configured as suspend state, meaning, the new solution time
+# solution time is then 2016-04-14 18:57:17
 $HelperObject->FixedTimeSetByTimeStamp('2016-04-12 17:00:02');    # Tuesday
 $TicketObject->TicketStateSet(
     State    => 'open',
@@ -98,6 +106,8 @@ $TicketObject->TicketPendingTimeSet(
 );
 
 # Set pending reminder
+# this adds another 4 minutes to the solution time
+# new solution time: 2016-04-15 08:01:17
 $HelperObject->FixedTimeSetByTimeStamp('2016-05-31 08:37:10');    # Tuesday
 $TicketObject->TicketStateSet(
     State    => 'pending reminder',
@@ -122,9 +132,12 @@ my %Ticket = $TicketObject->TicketGet(
     UserID   => 1,
 );
 
+# Solution time is 2016-04-15 08:01:17
+my $SolutionTime = $TimeObject->TimeStamp2SystemTime( String => '2016-04-15 08:01:17' );
+
 $Self->Is(
     $Ticket{SolutionTimeDestinationTime},
-    1460700077,    # UTC 15.04.2016 06:01:17
+    $SolutionTime,
     'SolutionTimeDestinationTime calculated correctly'
 );
 
