@@ -1,4 +1,4 @@
-image: registry.znuny.com/znuny/docker-otrs5ci:latest
+image: registry.znuny.com/znuny/docker-otrs6ci:latest
 
 before_script:
   - env
@@ -12,5 +12,5 @@ stages:
 job_unit_otrs_Znuny4OTRSEscalationSuspend:
   stage: test
   script:
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspend" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test EscalationSuspendLoop" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test Znuny4OTRSEscalationSuspend/EscalationSuspend" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test Znuny4OTRSEscalationSuspend/EscalationSuspendLoop" -s /bin/bash otrs
