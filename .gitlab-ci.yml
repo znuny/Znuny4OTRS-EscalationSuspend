@@ -6,11 +6,18 @@ before_script:
   - /run.sh
   - su -c "/opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-EscalationSuspend.sopm" -s /bin/bash otrs
 
+services:
+  - mysql:latest
+
+variables:
+  MYSQL_DATABASE: otrs
+  MYSQL_ROOT_PASSWORD: znuny4otrs
+
 stages:
   - test
 
 job_unit_otrs_Znuny4OTRSEscalationSuspend:
   stage: test
   script:
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test Znuny4OTRSEscalationSuspend/EscalationSuspend" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --test Znuny4OTRSEscalationSuspend/EscalationSuspendLoop" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSEscalationSuspend/EscalationSuspend" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSEscalationSuspend/EscalationSuspendLoop" -s /bin/bash otrs
