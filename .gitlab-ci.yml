@@ -7,11 +7,8 @@ before_script:
   - su -c "/opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-EscalationSuspend.sopm" -s /bin/bash otrs
 
 services:
-  - mysql:latest
-
-variables:
-  MYSQL_DATABASE: otrs
-  MYSQL_ROOT_PASSWORD: znuny4otrs
+  - name: registry.znuny.com/znuny/docker-mysql-utf8:latest
+    alias: mysql
 
 stages:
   - test
