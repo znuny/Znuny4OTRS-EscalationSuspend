@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -112,17 +112,17 @@ if ( !$TicketID ) {
 
     # create a ticket "$MyTicketName" in queue "$MyQueueName"
     $TicketID = $TicketObject->TicketCreate(
-        TN            => $MyTicketNr,              # $TicketObject->TicketCreateNumber(), # optional
+        TN            => $MyTicketNr,
         Title         => $MyTicketName,
-        Queue         => $MyQueueName,             # or QueueID => 123,
+        Queue         => $MyQueueName,
         Lock          => 'unlock',
-        Priority      => '3 normal',               # or PriorityID => 2,
-        State         => 'new',                    # or StateID => 5,
+        Priority      => '3 normal',
+        State         => 'new',
         CustomerID    => 'Znuny',
         CustomerUser  => 'customer@example.com',
         OwnerID       => 1,
-        ResponsibleID => 1,                        # not required
-        ArchiveFlag   => 'n',                      # (y|n) not required
+        ResponsibleID => 1,
+        ArchiveFlag   => 'n',
         UserID        => 1,
     );
 
