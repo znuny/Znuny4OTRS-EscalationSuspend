@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-EscalationSuspend</Name>
-    <Version>5.0.2</Version>
+    <Version>5.0.3</Version>
+    <ChangeLog Version="5.0.3" Date="2018-11-16 14:47:37 +0100">Applied CodePolicy.</ChangeLog>
     <ChangeLog Version="5.0.2" Date="2017-04-07 09:53:01 +0200">Updated documentation.</ChangeLog>
     <ChangeLog Version="5.0.1" Date="2016-08-16 12:07:09 +0200">updated documentation</ChangeLog>
     <ChangeLog Version="2.2.5" Date="2016-06-23 11:22:04 UTC">Added 'EscalationSuspendLoopProtection' SysConfig.</ChangeLog>
