@@ -22,7 +22,7 @@
     <ChangeLog Version="2.0.2" Date="2014-08-28 09:44:45 +0200">Fixed bug: 'SolutionInMin' and 'SolutionDiffInMin' get calculated for ticket without considering the time spend in suspended states.</ChangeLog>
     <ChangeLog Version="2.0.1" Date="2014-08-19 17:53:49 +0200">Updated documentation.</ChangeLog>
     <Framework>6.0.x</Framework>
-    <PackageRequired Version="6.0.3">Znuny4OTRS-Repo</PackageRequired>
+    <PackageRequired Version="6.0.35">Znuny4OTRS-Repo</PackageRequired>
     <Vendor>Znuny GmbH</Vendor>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
