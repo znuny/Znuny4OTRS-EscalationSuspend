@@ -27,10 +27,30 @@ my $TimeObject   = $Kernel::OM->Get('Kernel::System::ZnunyTime');
 
 # Disable transaction mode for escalation index ticket event module
 my $TicketEventModulePostConfig = $ConfigObject->Get('Ticket::EventModulePost');
-$TicketEventModulePostConfig->{'6000-EscalationIndex'}->{Transaction} = 0;
+my $EscalationIndexName         = '9990-EscalationIndex';
+
+$Self->True(
+    $TicketEventModulePostConfig->{$EscalationIndexName},
+    "Ticket::EventModulePost $EscalationIndexName exists",
+);
+
+$TicketEventModulePostConfig->{$EscalationIndexName}->{Transaction} = 0;
 $ConfigObject->Set(
     Key   => 'Ticket::EventModulePost',
     Value => $TicketEventModulePostConfig,
+);
+
+$TicketEventModulePostConfig = $ConfigObject->Get('Ticket::EventModulePost');
+
+$Self->IsDeeply(
+    $TicketEventModulePostConfig->{$EscalationIndexName},
+    {
+        'Transaction' => 0,
+        'Event' =>
+            'TicketSLAUpdate|TicketQueueUpdate|TicketStateUpdate|TicketCreate|ArticleCreate|TicketDynamicFieldUpdate|TicketTypeUpdate|TicketServiceUpdate|TicketCustomerUpdate|TicketPriorityUpdate|TicketMerge',
+        'Module' => 'Kernel::System::Ticket::Event::TicketEscalationIndex'
+    },
+    "Disable transaction mode for $EscalationIndexName Ticket::EventModulePost",
 );
 
 my $RandomID = $HelperObject->GetRandomID();

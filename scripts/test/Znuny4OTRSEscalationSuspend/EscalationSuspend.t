@@ -20,20 +20,41 @@ $Kernel::OM->ObjectParamAdd(
     },
 );
 
-my $HelperObject  = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
-my $TicketObject  = $Kernel::OM->Get('Kernel::System::Ticket');
-my $QueueObject   = $Kernel::OM->Get('Kernel::System::Queue');
-my $TimeObject    = $Kernel::OM->Get('Kernel::System::ZnunyTime');
-my $CacheObject   = $Kernel::OM->Get('Kernel::System::Cache');
-my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
+my $HelperObject      = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
+my $TicketObject      = $Kernel::OM->Get('Kernel::System::Ticket');
+my $QueueObject       = $Kernel::OM->Get('Kernel::System::Queue');
+my $TimeObject        = $Kernel::OM->Get('Kernel::System::ZnunyTime');
+my $CacheObject       = $Kernel::OM->Get('Kernel::System::Cache');
+my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 
 # Disable transaction mode for escalation index ticket event module
 my $TicketEventModulePostConfig = $ConfigObject->Get('Ticket::EventModulePost');
-$TicketEventModulePostConfig->{'6000-EscalationIndex'}->{Transaction} = 0;
+
+my $EscalationIndexName = '9990-EscalationIndex';
+
+$Self->True(
+    $TicketEventModulePostConfig->{$EscalationIndexName},
+    "Ticket::EventModulePost $EscalationIndexName exists",
+);
+
+$TicketEventModulePostConfig->{$EscalationIndexName}->{Transaction} = 0;
 $ConfigObject->Set(
     Key   => 'Ticket::EventModulePost',
     Value => $TicketEventModulePostConfig,
+);
+
+$TicketEventModulePostConfig = $ConfigObject->Get('Ticket::EventModulePost');
+
+$Self->IsDeeply(
+    $TicketEventModulePostConfig->{$EscalationIndexName},
+    {
+        'Transaction' => 0,
+        'Event' =>
+            'TicketSLAUpdate|TicketQueueUpdate|TicketStateUpdate|TicketCreate|ArticleCreate|TicketDynamicFieldUpdate|TicketTypeUpdate|TicketServiceUpdate|TicketCustomerUpdate|TicketPriorityUpdate|TicketMerge',
+        'Module' => 'Kernel::System::Ticket::Event::TicketEscalationIndex'
+    },
+    "Disable transaction mode for $EscalationIndexName Ticket::EventModulePost",
 );
 
 # Subs:
@@ -46,7 +67,6 @@ my $MySolutionTime = 120;
 my $MyQueueName    = "MyTestQueue";
 my $MyTicketName   = "MyTestTicket";
 my $Pending        = 5;                # minutes
-my $QueueID;
 my $Success;
 my $TicketEscalationIndexBuild;
 my $TicketEscalationSuspendCalculat;
@@ -57,15 +77,34 @@ my $SuspendStateActive;
 
 # create a queue for testing
 
-# check if Queue $MyTicketName exists
-my %QueueGet = $QueueObject->QueueGet(
-    Name => $MyQueueName,
+my $QueueID = $ZnunyHelperObject->_QueueCreateIfNotExists(
+    Name                => $MyQueueName,
+    ValidID             => 1,
+    GroupID             => 1,
+    FirstResponseTime   => $MySolutionTime,    # (optional)
+    FirstResponseNotify => 80,                 # (optional, notify agent if first response escalation is 60% reached)
+    UpdateTime          => 120,                # (optional)
+    UpdateNotify        => 80,                 # (optional, notify agent if update escalation is 80% reached)
+    SolutionTime        => 120,                # (optional)
+    SolutionNotify      => 80,                 # (optional, notify agent if solution escalation is 80% reached)
+    UnlockTimeout       => 480,                # (optional)
+    FollowUpId          => 3,                  # possible (1), reject (2) or new ticket (3) (optional, default 0)
+    FollowUpLock        => 0,                  # yes (1) or no (0) (optional, default 0)
+    SystemAddressID     => 1,
+    SalutationID        => 1,
+    SignatureID         => 1,
+    Comment             => 'Some comment',
+    UserID              => 1,
 );
-$QueueID = $QueueGet{QueueID};
+
 if ($QueueID) {
 
+    my %Queue = $QueueObject->QueueGet(
+        ID => $QueueID,
+    );
+
     $Self->Is(
-        $QueueGet{Name},
+        $Queue{Name},
         $MyQueueName,
         "QueueGet() - Queuename",
     );
@@ -77,41 +116,14 @@ if ($QueueID) {
 
     # check the SolutionTime
     $Self->Is(
-        $QueueGet{SolutionTime},
+        $Queue{SolutionTime},
         '120',
         'QueueGet() - SolutionTime - ',
     );
 }
-else {
-    # create a Queue named "MyTestQueue" with a SolutionTime of 120 min
-    $QueueID = $QueueObject->QueueAdd(
-        Name                => $MyQueueName,
-        ValidID             => 1,
-        GroupID             => 1,
-        FirstResponseTime   => $MySolutionTime,   # (optional)
-        FirstResponseNotify => 80,                # (optional, notify agent if first response escalation is 60% reached)
-        UpdateTime          => 120,               # (optional)
-        UpdateNotify        => 80,                # (optional, notify agent if update escalation is 80% reached)
-        SolutionTime        => 120,               # (optional)
-        SolutionNotify      => 80,                # (optional, notify agent if solution escalation is 80% reached)
-        UnlockTimeout       => 480,               # (optional)
-        FollowUpId          => 3,                 # possible (1), reject (2) or new ticket (3) (optional, default 0)
-        FollowUpLock        => 0,                 # yes (1) or no (0) (optional, default 0)
-        SystemAddressID     => 1,
-        SalutationID        => 1,
-        SignatureID         => 1,
-        Comment             => 'Some comment',
-        UserID              => 1,
-    );
-
-    $Self->True(
-        $QueueID,
-        "QueueAdd() -  create Queue ($QueueID) $MyQueueName with a SolutionTime of $MySolutionTime min",
-    );
-}
 
 # create a ticket for testing
-my $TicketID = $TicketObject->TicketCreate(
+my $TicketID = $HelperObject->TicketCreate(
     Title         => $MyTicketName,
     Queue         => $MyQueueName,             # or QueueID => 123,
     Lock          => 'unlock',
@@ -144,7 +156,7 @@ my %Ticket = $TicketObject->TicketGet(
 );
 
 # we need an article to check SenderType (agent|customer)
-my $ArticleID = $ArticleObject->ArticleCreate(
+my $ArticleID = $HelperObject->ArticleCreate(
     TicketID             => $TicketID,
     ChannelName          => 'Internal',
     IsVisibleForCustomer => 0,
@@ -391,7 +403,7 @@ my $SystemTime = $TimeObject->SystemTime();
 
 if ( $SystemTime gt $SystemPendingTime ) {
 
-    $ArticleID = $ArticleObject->ArticleCreate(
+    $ArticleID = $HelperObject->ArticleCreate(
         TicketID             => $TicketID,
         ChannelName          => 'Internal',
         IsVisibleForCustomer => 1,
