@@ -1,4 +1,4 @@
-# Suspend the escalation on specific ticket states
+# Functionality
 
 You are now able to pause the escalation of a ticket. To achieve this you just need to configure the states via SysConfig which fits to your situation/workflow.
 

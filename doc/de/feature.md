@@ -1,4 +1,4 @@
-# Anhalten der Eskalationsberechnung bei bestimmten Status
+# Funktionalität
 
 Mit dieser Erweiterung können Sie die Eskalationsberechnung eines Tickets "anhalten", solange es sich in einem vorher definierten Status befindet. Beim Setzen des vordefinierten-Status vorm Ablaufen der Eskalationszeit, verlängert sich die Lösungszeit um die Zeitdauer, in der es sich in diesem Status befindet.
 

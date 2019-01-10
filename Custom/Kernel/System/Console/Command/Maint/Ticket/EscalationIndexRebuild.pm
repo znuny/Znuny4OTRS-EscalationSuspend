@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2019 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 04139bf7d2feaf7631ce64edada6d19fea6a3328 - Kernel/System/Console/Command/Maint/Ticket/EscalationIndexRebuild.pm
 # --
@@ -35,8 +35,8 @@ sub Configure {
 # ---
 #     $Self->Description('Completely rebuild the ticket escalation index.');
     my $Description = "RebuildEscalationIndexOnline - Rebuild Escalation Index\n";
-    $Description .= "Copyright (C) 2001-2018 OTRS AG, https://otrs.com/";
-    $Description .= "Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/";
+    $Description .= "Copyright (C) 2001-2019 OTRS AG, https://otrs.com/";
+    $Description .= "Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/";
 
     $Self->Description($Description);
 # ---
