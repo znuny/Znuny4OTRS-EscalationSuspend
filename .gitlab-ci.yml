@@ -1,15 +1,14 @@
-image: registry.znuny.com/znuny/docker-otrs6ci:latest
+image: registry.znuny.com/znuny/internal/docker-otrs6ci:$OTRS_TAG
 
 stages:
   - test
 
-job_unit_otrs_Znuny4OTRSEscalationSuspend:
+mysql:
   stage: test
   services:
-    - name: registry.znuny.com/znuny/docker-mysql-utf8:latest
+    - name: registry.znuny.com/znuny/internal/docker-mysql:$MYSQL_TAG
       alias: mysql
   script:
     - /run.sh
     - su -c "/opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-EscalationSuspend.sopm" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSEscalationSuspend/EscalationSuspend" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSEscalationSuspend/EscalationSuspendLoop" -s /bin/bash otrs
+    - /unittest.sh
