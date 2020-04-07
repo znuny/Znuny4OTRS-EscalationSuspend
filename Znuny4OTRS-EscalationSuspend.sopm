@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-EscalationSuspend</Name>
-    <Version>6.0.4</Version>
+    <Version>6.0.5</Version>
+    <ChangeLog Version="6.0.5" Date="2020-04-07 18:00:41 +0200">Tidied code.</ChangeLog>
     <ChangeLog Version="6.0.4" Date="2019-01-10 12:05:43 +0100">Fixed UnitTests.</ChangeLog>
     <ChangeLog Version="6.0.3" Date="2018-05-22 16:10:16 +0200">Small doc fixes.</ChangeLog>
     <ChangeLog Version="6.0.2" Date="2017-10-13 16:30:51 +0200">Fixed unit test.</ChangeLog>
