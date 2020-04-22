@@ -1,12 +1,12 @@
 # Funktionalität
 
-Mit dieser Erweiterung können Sie die Eskalationsberechnung eines Tickets "anhalten", solange es sich in einem vorher definierten Status befindet. Beim Setzen des vordefinierten-Status vorm Ablaufen der Eskalationszeit, verlängert sich die Lösungszeit um die Zeitdauer, in der es sich in diesem Status befindet.
+Mit dieser Erweiterung kann die Eskalationsberechnung eines Tickets "angehalten" werden, solange es sich in einem vorher definierten Status befindet. Beim Setzen des vordefinierten Status vor Ablauf der Eskalationszeit verlängert sich die Lösungszeit um die Dauer, in der es sich in diesem Status befindet.
 
-Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "angehalten" werden soll. Die entsprechenden Status können über die SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend) eingestellt werden. Im Standard sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen. Diese können individuell angepasst werden.
+Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "angehalten" werden soll. Die entsprechenden Status können über die SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend) eingestellt werden. Standardmäßig sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen. Diese können individuell angepasst werden.
 
 ![SuspendEscalatedTickets](doc/de/images/EscalationSuspendStates.png)
 
-Exemplarischer Beispielfall:
+Beispielfall:
 
   * 08:00 - Ein Ticket wird erstellt. Die Lösungszeit beträgt 2 Stunden. Die zu erwartende Eskalation wird für 10:00 angezeigt.
   * 09:00 - Das Ticket wird in den Status "pending reminder" gesetzt, da der Kunde nicht erreicht wurde. Die zu erwartende Eskalation wird für 10:00 angezeigt.
@@ -15,35 +15,4 @@ Exemplarischer Beispielfall:
   * 10:05 - Der Kunde Antwortet via E-Mail mit den fehlenden Informationen. Das Ticket wird in den Status "open" gesetzt. Die zu erwartende Eskalation wird für 11:05 angezeigt.
   * 10:30 - Die zu erwartende Eskalation wird für 11:05 angezeigt.
   * 11:00 - Die zu erwartende Eskalation wird für 11:05 angezeigt.
-  * 11:05 - Das Ticket ist eskaliert.
-
-## SysConfig
-
-SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend)
-
-#### Performance Sicherstellung
-
-Bei der Berechnung der Arbeitszeit kann es je nach Kalender-Einstellung, Wochenenden und Feiertagen zu Auswirkungen auf die Performance kommen. Um negative Seiteneffekte vorzubeugen wurde ein Limit an Berechnungszyklen von standardmäßig 500 Iterationen eingestellt. Dies wird in über 95% der Installation nie erreicht. Sollte es doch erreicht werden, kommt es zu folgende Fehlermeldungen im Log:
-
-Error: 100 SuspendEscalatedTickets iterations for Ticket with TicketID 'XXX', Calendar 'X', UpdateDiffTime 'XXX', DestinationTime 'XXX'.
-
-Um diese vorzubeugen kann das Limit von 500 Iterationen über die SysConfig 'EscalationSuspendLoopProtection' je nach Bedarfsfall erhöht werden. Hierbei ist jedoch darauf zu achten, dass es zu keine Auswirkungen auf die Performance kommt.
-
-![SuspendEscalatedTickets](doc/de/images/EscalationSuspendLoopProtection.png)
-
-
-#### Eskalations-Benachrichtung trotz "pending-Status"
-
-Wird der Status auf pending gesetzt, nachdem das Ticket bereits eskaliert ist, werden im Standard weiterhin Benachrichtigungen versandt. Dies kann durch folgende Einstellung in der SysConfig abgeschaltet werden:
-
--> SuspendEscalatedTickets auf 'ja' setzten
-
-
-![SuspendEscalatedTickets](doc/de/images/SuspendEscalatedTickets.png)
-
-
-#### Eskalationen anhalten
-
-Abschalten der gesamten Eskalation wenn, ein Ticket in einem konfigurierten Status zum Anhalten der Eskalationen verweilt. Am Ticket werden keine Eskalationswerte mehr angezeigt. Das Ticket taucht auch nicht in der Übersicht der eskallierten Tickets auf.
-
-![SuspendEscalatedTickets](doc/de/images/EscalationSuspendCancelEscalation.png)
+  * 11:05 - Das Ticket eskaliert.
