@@ -50,7 +50,7 @@
         </Value>
     </Setting>
     <Setting Name="EscalationSuspendLoopProtection" Required="1" Valid="1">
-        <Description Translatable="1">This configuration defines the number of iterations that should be performed at max for calculating the WorkingTime for a Ticket. Attention: Setting this configuration to high can lead to performance issues.</Description>
+        <Description Translatable="1">Maximum number of iterations for calculating the WorkingTime for a ticket. Attention: Setting this too high can lead to performance issues.</Description>
         <Navigation>Core::Znuny4OTRS::EscalationSuspend</Navigation>
         <Value>
             <Item ValueType="String" ValueRegex="^\d+$">500</Item>
