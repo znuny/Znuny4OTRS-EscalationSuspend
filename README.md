@@ -1,6 +1,6 @@
 ![Znuny logo](https://znuny.com/assets/images/logo_small.png)
 
-![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-OutOfOfficeFilter/master)
+![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-EscalationSuspend/master)
 
 Znuny4OTRS-EscalationSuspend
 ============================
