@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - e58542a3302a50cf0eac29b63c80206f1de2608e - Kernel/System/Ticket.pm
 # --
@@ -11,7 +11,7 @@
 # ---
 # Znuny4OTRS-EscalationSuspend
 # ---
-# nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
+## nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
 # ---
 package Kernel::System::Ticket::Znuny4OTRSEscalationSuspend;
 
