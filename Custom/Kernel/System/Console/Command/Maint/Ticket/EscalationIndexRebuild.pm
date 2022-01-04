@@ -1,8 +1,8 @@
 # --
-# Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2022 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 8207d0f681adcdeb5c1b497ac547a1d9749838d5 - Kernel/System/Console/Command/Maint/Ticket/EscalationIndexRebuild.pm
+# $origin: znuny - 012b2cb0daf8519ff314f751ad03b62219f63331 - Kernel/System/Console/Command/Maint/Ticket/EscalationIndexRebuild.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -10,7 +10,7 @@
 # --
 
 # ---
-# Znuny4OTRS-EscalationSuspend
+# Znuny-EscalationSuspend
 # ---
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
 # ---
@@ -31,12 +31,12 @@ our @ObjectDependencies = (
 sub Configure {
     my ( $Self, %Param ) = @_;
 # ---
-# Znuny4OTRS-EscalationSuspend
+# Znuny-EscalationSuspend
 # ---
 #     $Self->Description('Completely rebuild the ticket escalation index.');
     my $Description = "RebuildEscalationIndexOnline - Rebuild Escalation Index\n";
-    $Description .= "Copyright (C) 2001-2021 OTRS AG, https://otrs.com/";
-    $Description .= "Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/";
+    $Description .= "Copyright (C) 2001-2022 OTRS AG, https://otrs.com/";
+    $Description .= "Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/";
 
     $Self->Description($Description);
 # ---
@@ -63,7 +63,7 @@ sub Run {
     my @TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
         Result     => 'ARRAY',
 # ---
-# Znuny4OTRS-EscalationSuspend
+# Znuny-EscalationSuspend
 # ---
         States => $Kernel::OM->Get('Kernel::Config')->Get('EscalationSuspendStates'),
 # ---
@@ -83,7 +83,7 @@ sub Run {
         $Kernel::OM->Get('Kernel::System::Ticket')->TicketEscalationIndexBuild(
             TicketID => $TicketID,
 # ---
-# Znuny4OTRS-EscalationSuspend
+# Znuny-EscalationSuspend
 # ---
             Suspend  => 1,
 # ---

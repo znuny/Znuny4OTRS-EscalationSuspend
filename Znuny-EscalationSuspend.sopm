@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
-    <Name>Znuny4OTRS-EscalationSuspend</Name>
+    <Name>Znuny-EscalationSuspend</Name>
     <Version>6.0.7</Version>
     <ChangeLog Version="6.0.7" Date="2021-02-12 17:43:22 +0100">Happy new year. Tidied code.</ChangeLog>
     <ChangeLog Version="6.0.6" Date="2020-04-22 12:06:32 +0200">Updated documentation. Updated texts and translations.</ChangeLog>
@@ -25,25 +25,24 @@
     <ChangeLog Version="2.0.0" Date="2014-01-14 14:05:03 +0100">Added OTRS 4.0 support.</ChangeLog>
     <ChangeLog Version="2.0.2" Date="2014-08-28 09:44:45 +0200">Fixed bug: 'SolutionInMin' and 'SolutionDiffInMin' get calculated for ticket without considering the time spend in suspended states.</ChangeLog>
     <ChangeLog Version="2.0.1" Date="2014-08-19 17:53:49 +0200">Updated documentation.</ChangeLog>
-    <Framework>6.0.x</Framework>
-    <PackageRequired Version="6.0.71">Znuny4OTRS-Repo</PackageRequired>
+    <Framework>6.1.x</Framework>
     <Vendor>Znuny GmbH</Vendor>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
-    <Description Lang="en">A module to enable escalation suspension.</Description>
-    <Description Lang="de">Ein Modul zum Ermöglichen des Anhaltens von Eskalation.</Description>
+    <Description Lang="en">Enables escalation suspension.</Description>
+    <Description Lang="de">Ermöglicht das Aussetzen von Eskalationen.</Description>
     <Filelist>
         <File Permission="660" Location="Custom/Kernel/System/Console/Command/Maint/Ticket/EscalationIndexRebuild.pm"/>
-        <File Permission="660" Location="Kernel/Config/Files/XML/Znuny4OTRSEscalationSuspend.xml"/>
-        <File Permission="660" Location="Kernel/Language/de_Znuny4OTRSEscalationSuspend.pm"/>
-        <File Permission="660" Location="Kernel/Language/zh_CN_Znuny4OTRSEscalationSuspend.pm"/>
-        <File Permission="660" Location="Kernel/System/Ticket/Znuny4OTRSEscalationSuspend.pm"/>
-        <File Permission="660" Location="scripts/test/Znuny4OTRSEscalationSuspend/EscalationSuspend.t"/>
-        <File Permission="660" Location="scripts/test/Znuny4OTRSEscalationSuspend/EscalationSuspendLoop.t"/>
+        <File Permission="660" Location="Kernel/Config/Files/XML/ZnunyEscalationSuspend.xml"/>
+        <File Permission="660" Location="Kernel/Language/de_ZnunyEscalationSuspend.pm"/>
+        <File Permission="660" Location="Kernel/Language/zh_CN_ZnunyEscalationSuspend.pm"/>
+        <File Permission="660" Location="Kernel/System/Ticket/ZnunyEscalationSuspend.pm"/>
+        <File Permission="660" Location="scripts/test/ZnunyEscalationSuspend/EscalationSuspend.t"/>
+        <File Permission="660" Location="scripts/test/ZnunyEscalationSuspend/EscalationSuspendLoop.t"/>
     </Filelist>
     <IntroInstall Type="post" Title="Installation Information" Lang="en"><![CDATA[
         <br/>
-        Welcome to <u>Znuny4OTRS-EscalationSuspend</u>!
+        Welcome to <u>Znuny-EscalationSuspend</u>!
         <br/>
         <br/>
         This package suspends the escalation when the ticket is in any of the configured states.
@@ -57,4 +56,5 @@
         <br/>
         <br/>
     ]]></IntroInstall>
+    <PackageMerge Name="Znuny4OTRS-EscalationSuspend" TargetVersion="6.0.7"></PackageMerge>
 </otrs_package>

@@ -2,7 +2,7 @@
 
 Mit dieser Erweiterung kann die Eskalationsberechnung eines Tickets "angehalten" werden, solange es sich in einem vorher definierten Status befindet. Beim Setzen des vordefinierten Status vor Ablauf der Eskalationszeit verlängert sich die Lösungszeit um die Dauer, in der es sich in diesem Status befindet.
 
-Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "angehalten" werden soll. Die entsprechenden Status können über die SysConfig (Gruppe: Znuny4OTRS-EscalationSuspend -> Untergruppe: EscalationSuspend) eingestellt werden. Standardmäßig sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen. Diese können individuell angepasst werden.
+Ein typischer Anwendungsfall ist, dass beim Warten auf einen Kunden die Eskalationsberechnung "angehalten" werden soll. Die entsprechenden Status können über die SysConfig eingestellt werden. Standardmäßig sind die drei Status 'pending auto close+', 'pending auto close-' und 'pending reminder' eingetragen. Diese können individuell angepasst werden.
 
 ![SuspendEscalatedTickets](doc/de/images/EscalationSuspendStates.png)
 

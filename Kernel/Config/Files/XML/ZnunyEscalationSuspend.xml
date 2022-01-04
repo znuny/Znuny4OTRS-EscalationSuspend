@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_config version="2.0" init="Config">
-    <Setting Name="Ticket::CustomModule###Znuny4OTRS-EscalationSuspend" Required="1" Valid="1">
+    <Setting Name="Ticket::CustomModule###Znuny-EscalationSuspend" Required="1" Valid="1">
         <Description Translatable="1">Overloads (redefines) existing functions in Kernel::System::Ticket. Used to easily add customizations.</Description>
         <Navigation>Core::Ticket</Navigation>
         <Value>
-            <Item ValueType="String" ValueRegex="">Kernel::System::Ticket::Znuny4OTRSEscalationSuspend</Item>
+            <Item ValueType="String" ValueRegex="">Kernel::System::Ticket::ZnunyEscalationSuspend</Item>
         </Value>
     </Setting>
     <Setting Name="EscalationSuspendStates" Required="0" Valid="1">
@@ -20,14 +20,14 @@
     </Setting>
     <Setting Name="SuspendEscalatedTickets" Required="1" Valid="1">
         <Description Translatable="1">Suspend already escalated tickets.</Description>
-        <Navigation>Core::Znuny4OTRS::EscalationSuspend</Navigation>
+        <Navigation>Core::Znuny::EscalationSuspend</Navigation>
         <Value>
             <Item ValueType="Checkbox">0</Item>
         </Value>
     </Setting>
     <Setting Name="EscalationSuspendCancelEscalation" Required="1" Valid="1">
         <Description Translatable="1">Cancel whole escalation if ticket is in configured suspend state (EscalationSuspendStates). Ticket will not escalate at all in configured suspend state. No escalation times are shown. Ticket will not be shown in escalation view.</Description>
-        <Navigation>Core::Znuny4OTRS::EscalationSuspend</Navigation>
+        <Navigation>Core::Znuny::EscalationSuspend</Navigation>
         <Value>
             <Item ValueType="Checkbox">0</Item>
         </Value>
@@ -51,7 +51,7 @@
     </Setting>
     <Setting Name="EscalationSuspendLoopProtection" Required="1" Valid="1">
         <Description Translatable="1">Maximum number of iterations for calculating the WorkingTime for a ticket. Attention: Setting this too high can lead to performance issues.</Description>
-        <Navigation>Core::Znuny4OTRS::EscalationSuspend</Navigation>
+        <Navigation>Core::Znuny::EscalationSuspend</Navigation>
         <Value>
             <Item ValueType="String" ValueRegex="^\d+$">500</Item>
         </Value>
