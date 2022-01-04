@@ -3,7 +3,7 @@
 This add-on allows to pause the escalation of a ticket. To achieve this you just need to configure the states which fit to your situation/workflow via SysConfig.
 
 A typical use case is to suspend the escalation as long as you wait for a customer reply. Configure 'pending reminder' as the suspend state and you're done!
-To configure the state you need to go to Admin -> SysConfig -> Znuny4OTRS-EscalationSuspend -> EscalationSuspend. After the installation the states 'pending auto close+', 'pending auto close-' and 'pending reminder' are configured by default.
+After the installation the states 'pending auto close+', 'pending auto close-' and 'pending reminder' are configured by default.
 
 ![SuspendEscalatedTickets](doc/en/images/EscalationSuspendStates.png)
 

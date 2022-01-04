@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2022 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -24,7 +24,7 @@ my $HelperObject      = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
 my $TicketObject      = $Kernel::OM->Get('Kernel::System::Ticket');
 my $QueueObject       = $Kernel::OM->Get('Kernel::System::Queue');
-my $TimeObject        = $Kernel::OM->Get('Kernel::System::ZnunyTime');
+my $TimeObject        = $Kernel::OM->Get('Kernel::System::Time');
 my $CacheObject       = $Kernel::OM->Get('Kernel::System::Cache');
 my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 

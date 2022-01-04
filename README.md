@@ -1,19 +1,18 @@
 ![Znuny logo](https://znuny.com/assets/images/logo_small.png)
 
-![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-EscalationSuspend/master)
+![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-EscalationSuspend/rel-6_1)
 
-Znuny4OTRS-EscalationSuspend
-============================
+Znuny-EscalationSuspend
+=======================
 This add-on suspends the escalation when the ticket is in any of the configured states.
 
 **Prerequisites**
 
-- OTRS 6
-- [Znuny4OTRS-Repo](https://www.znuny.com/add-ons/znuny4otrs-repository)
+- Znuny 6.1
 
 **Installation**
 
-Download the [package](https://addons.znuny.com/api/addon_repos/public/1039/latest) and install it via admin interface -> package manager or use [Znuny4OTRS-Repo](https://www.znuny.com/add-ons/znuny4otrs-repository).
+Download the [package](https://addons.znuny.com/api/addon_repos/public/2108/latest) and install it via admin interface -> package manager.
 
 **Configuration**
 
@@ -21,11 +20,11 @@ No further configuration required.
 
 **Download**
 
-Download the [latest version](https://addons.znuny.com/api/addon_repos/public/1039/latest).
+Download the [latest version](https://addons.znuny.com/api/addon_repos/public/2108/latest).
 
 **Professional Support**
 
-For this add-on and for OTRS in general visit [www.znuny.com](https://www.znuny.com). Looking forward to hear from you!
+For this add-on and for Znuny in general visit [www.znuny.com](https://www.znuny.com). Looking forward to hear from you!
 
 Enjoy!
 
