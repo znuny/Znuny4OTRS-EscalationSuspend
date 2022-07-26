@@ -28,7 +28,7 @@
     <ChangeLog Version="2.0.0" Date="2014-01-14 14:05:03 +0100">Added OTRS 4.0 support.</ChangeLog>
     <ChangeLog Version="2.0.2" Date="2014-08-28 09:44:45 +0200">Fixed bug: 'SolutionInMin' and 'SolutionDiffInMin' get calculated for ticket without considering the time spend in suspended states.</ChangeLog>
     <ChangeLog Version="2.0.1" Date="2014-08-19 17:53:49 +0200">Updated documentation.</ChangeLog>
-    <Framework>6.3.x</Framework>
+    <Framework>6.4.x</Framework>
     <Vendor>Znuny GmbH</Vendor>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
