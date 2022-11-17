@@ -1,6 +1,6 @@
 ![Znuny logo](https://znuny.com/assets/images/logo_small.png)
 
-![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-EscalationSuspend/rel-6_3)
+![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-EscalationSuspend/rel-6_4)
 
 Znuny-EscalationSuspend
 =======================
@@ -8,7 +8,7 @@ This add-on suspends the escalation when the ticket is in any of the configured 
 
 **Prerequisites**
 
-- Znuny 6.3
+- Znuny 6.4
 
 **Installation**
 

@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2022 Znuny GmbH, https://znuny.com/
 # --
 # $origin: znuny - 460ef44565300c6b979b0743833e3800fdbebf81 - Kernel/System/Console/Command/Maint/Ticket/EscalationIndexRebuild.pm
 # --
@@ -12,7 +12,7 @@
 # ---
 # Znuny-EscalationSuspend
 # ---
-## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
+## nofilter(TidyAll::Plugin::Znuny::Perl::Pod::Validator)
 # ---
 package Kernel::System::Console::Command::Maint::Ticket::EscalationIndexRebuild;
 
@@ -35,8 +35,10 @@ sub Configure {
 # ---
 #     $Self->Description('Completely rebuild the ticket escalation index.');
     my $Description = "RebuildEscalationIndexOnline - Rebuild Escalation Index\n";
-    $Description .= "Copyright (C) 2001-2021 OTRS AG, https://otrs.com/";
-    $Description .= "Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/";
+    $Description   .= "Copyright (C) ";
+    $Description   .= "2001-2021 OTRS AG, https://otrs.com/";
+    $Description   .= "Copyright (C) ";
+    $Description   .= "2012-2022 Znuny GmbH, https://znuny.com/";
 
     $Self->Description($Description);
 # ---
