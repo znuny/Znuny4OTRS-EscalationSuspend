@@ -2,13 +2,12 @@
 <otrs_package version="1.0">
     <Name>Znuny-EscalationSuspend</Name>
     <Version>6.5.1</Version>
-    <Framework>6.4.x</Framework>
+    <Framework>6.5.x</Framework>
     <Vendor>Znuny GmbH</Vendor>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
     <Description Lang="en">Enables escalation suspension.</Description>
     <Description Lang="de">Ermöglicht das Aussetzen von Eskalationen.</Description>
-    <ChangeLog Version="6.5.1" Date="2023-02-20 13:54:47 +0100">Initial release for Znuny 6.5.</ChangeLog>
     <ChangeLog Version="6.4.1" Date="2022-07-27 22:19:20 +0200">initial release for Znuny 6.4</ChangeLog>
     <ChangeLog Version="6.3.1" Date="2022-04-01 11:02:29 +0200">Package ported to Znuny 6.3.</ChangeLog>
     <ChangeLog Version="6.2.1" Date="2022-01-05 13:52:07 +0100">Initial release for Znuny 6.2.</ChangeLog>
