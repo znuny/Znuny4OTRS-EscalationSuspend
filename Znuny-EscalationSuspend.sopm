@@ -8,6 +8,7 @@
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
     <Description Lang="en">Enables escalation suspension.</Description>
     <Description Lang="de">Ermöglicht das Aussetzen von Eskalationen.</Description>
+    <ChangeLog Version="6.5.1" Date="2023-03-09 18:18:59 +0100">Initial release for Znuny LTS 6.5</ChangeLog>
     <ChangeLog Version="6.5.1" Date="2023-03-09 18:13:20 +0100">Initial release for Znuny LTS 6.5</ChangeLog>
     <ChangeLog Version="6.5.1" Date="2023-03-09 18:12:41 +0100">Initial release for Znuny LTS 6.5</ChangeLog>
     <ChangeLog Version="6.4.1" Date="2022-07-27 22:19:20 +0200">initial release for Znuny 6.4</ChangeLog>
