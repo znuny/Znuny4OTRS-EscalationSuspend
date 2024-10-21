@@ -51,7 +51,7 @@ $Self->IsDeeply(
     {
         'Transaction' => 0,
         'Event' =>
-            'TicketSLAUpdate|TicketQueueUpdate|TicketStateUpdate|TicketCreate|ArticleCreate|TicketDynamicFieldUpdate|TicketTypeUpdate|TicketServiceUpdate|TicketCustomerUpdate|TicketPriorityUpdate|TicketMerge',
+            '\\A(TicketSLAUpdate|TicketQueueUpdate|TicketStateUpdate|TicketCreate|ArticleCreate|TicketDynamicFieldUpdate_.+|TicketTypeUpdate|TicketServiceUpdate|TicketCustomerUpdate|TicketPriorityUpdate|TicketMerge)\\z',
         'Module' => 'Kernel::System::Ticket::Event::TicketEscalationIndex'
     },
     "Disable transaction mode for $EscalationIndexName Ticket::EventModulePost",
