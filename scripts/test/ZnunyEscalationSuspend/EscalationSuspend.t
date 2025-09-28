@@ -50,7 +50,7 @@ $Self->IsDeeply(
     $TicketEventModulePostConfig->{$EscalationIndexName},
     {
         'Transaction' => 0,
-        'Event' =>
+        'Event'       =>
             '\\A(TicketSLAUpdate|TicketQueueUpdate|TicketStateUpdate|TicketCreate|ArticleCreate|TicketDynamicFieldUpdate_.+|TicketTypeUpdate|TicketServiceUpdate|TicketCustomerUpdate|TicketPriorityUpdate|TicketMerge)\\z',
         'Module' => 'Kernel::System::Ticket::Event::TicketEscalationIndex'
     },
@@ -165,10 +165,10 @@ my $ArticleID = $HelperObject->ArticleCreate(
     Subject              => 'some short description',             # required
     Body                 => 'the message text',                   # required
     ContentType          => 'text/plain; charset=ISO-8859-15',    # or optional Charset & MimeType
-    HistoryType    => 'OwnerUpdate',       # EmailCustomer|Move|AddNote|PriorityUpdate|WebRequestCustomer|...
-    HistoryComment => 'Some free text!',
-    UserID         => 1,
-    NoAgentNotify  => 0,                   # if you don't want to send agent notifications
+    HistoryType          => 'OwnerUpdate',       # EmailCustomer|Move|AddNote|PriorityUpdate|WebRequestCustomer|...
+    HistoryComment       => 'Some free text!',
+    UserID               => 1,
+    NoAgentNotify        => 0,                   # if you don't want to send agent notifications
 );
 $Self->True(
     $ArticleID,
@@ -409,11 +409,11 @@ if ( $SystemTime gt $SystemPendingTime ) {
         IsVisibleForCustomer => 1,
 
         #         ArticleType => 'note-internal',                      # email-external|email-internal|phone|fax|...
-        SenderType  => 'customer',                           # agent|system|customer
-        From        => 'Some Agent <email@example.com>',     # not required but useful
-        Subject     => 'some short description',             # required
-        Body        => 'the message text',                   # required
-        ContentType => 'text/plain; charset=ISO-8859-15',    # or optional Charset & MimeType
+        SenderType     => 'customer',                           # agent|system|customer
+        From           => 'Some Agent <email@example.com>',     # not required but useful
+        Subject        => 'some short description',             # required
+        Body           => 'the message text',                   # required
+        ContentType    => 'text/plain; charset=ISO-8859-15',    # or optional Charset & MimeType
         HistoryType    => 'OwnerUpdate',       # EmailCustomer|Move|AddNote|PriorityUpdate|WebRequestCustomer|...
         HistoryComment => 'Some free text!',
         UserID         => 1,
